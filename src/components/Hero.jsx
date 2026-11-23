@@ -46,7 +46,7 @@ export default function Hero({ total, cfg, custom, onResetCfg, zeroOrgs, onFocus
           </div>
         </div>
         <div className="hero-signal">
-          <DualRing outer={total.pCur} inner={total.pPass} size={compact ? 72 : 208} big={!compact} label="ทั้งจังหวัด" cur={cur} />
+          <DualRing outer={total.pCur} inner={total.pPass} size={compact ? 84 : 208} big={!compact} label="ทั้งจังหวัด" cur={cur} />
           <dl className="hero-legend">
             <div className="amber"><dt>มีข้อมูลปี {cur}</dt><dd><Num v={total.cur} /> <small>/ {total.n.toLocaleString()} ชุด</small></dd>
               <p className="def">ชุดข้อมูลที่มีข้อมูลของปี {cur} อย่างน้อย 1 ไฟล์</p></div>

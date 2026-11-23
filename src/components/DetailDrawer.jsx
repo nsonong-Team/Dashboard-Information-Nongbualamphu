@@ -59,7 +59,7 @@ export default function DetailDrawer({ row, meta, cfg, byOrg, onClose }) {
     <dialog ref={ref} className="drawer" onClose={onClose} onClick={(e) => { if (e.target === ref.current) ref.current.close(); }} aria-labelledby="drawer-title">
       <div className="drawer-in">
         <header className="drawer-head">
-          <DualRing outer={row.pCur} inner={row.pPass} cur={cfg.cur} size={76} label={meta.title} />
+          <DualRing outer={row.pCur} inner={row.pPass} cur={cfg.cur} size={104} label={meta.title} />
           <div>
             <h2 id="drawer-title">{meta.title}</h2>
             <p className="sub">

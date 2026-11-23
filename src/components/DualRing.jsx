@@ -8,14 +8,14 @@ import { CUR_Y } from "../api.js";
 export default function DualRing({ outer, inner, size = 92, label, delay = 0, big = false, cur = CUR_Y }) {
   const [on, setOn] = useState(false);
   useEffect(() => { const t = setTimeout(() => setOn(true), 60 + delay); return () => clearTimeout(t); }, [delay]);
-  const sw = big ? 12 : 8, gap = big ? 6 : 4;
+  const sw = big ? 12 : 7, gap = big ? 6 : 4;
   const r1 = size / 2 - sw / 2 - 1, r2 = r1 - sw - gap;
   const C1 = 2 * Math.PI * r1, C2 = 2 * Math.PI * r2;
   const o = useCountUp(Math.round(outer * 100), 1200 + delay);
   const i = useCountUp(Math.round(inner * 100), 1200 + delay);
   const low = outer < 0.25;
   return (
-    <figure className={"dring" + (big ? " big" : "") + (low ? " low" : "") + (size < 80 ? " sm" : "")} style={{ width: size, height: size }}
+    <figure className={"dring" + (big ? " big" : "") + (low ? " low" : "") + (size < 90 ? " sm" : "")} style={{ width: size, height: size }}
       role="img" aria-label={`${label ? label + ": " : ""}มีข้อมูลปีปัจจุบัน ${Math.round(outer * 100)}% · ผ่านเงื่อนไขครบ ${Math.round(inner * 100)}%`}>
       <svg viewBox={`0 0 ${size} ${size}`} aria-hidden="true">
         <circle className="trk" cx={size / 2} cy={size / 2} r={r1} strokeWidth={sw} />
