@@ -46,7 +46,7 @@ export default function EntityCard({ row, meta, cur, index, onOpen }) {
             {meta.sub && <> · {meta.sub}</>}
           </p>
         </div>
-        <DualRing outer={row.pCur} inner={row.pPass} cur={cur} size={86} delay={Math.min(index, 12) * 55} label={meta.title} />
+        <DualRing outer={row.pCur} inner={row.pPass} cur={cur} size={104} delay={Math.min(index, 12) * 55} label={meta.title} />
       </div>
       <dl className="ecard-nums">
         <div className="amber"><dt>ปี {cur}</dt><dd>{row.cur}<small>/{row.n}</small></dd></div>

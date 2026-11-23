@@ -115,22 +115,28 @@ export default function Compliance({ files, emptyDatasets = [], cfg, setCfg }) {
       <div className="card">
         <h2><Icon name="rule" /> เงื่อนไขการตรวจสอบ</h2>
         <div className="crit">
-          <div className="crit-i"><b>1</b> ข้อมูลย้อนหลังครบ
-            <select value={n} onChange={(e) => setN(+e.target.value)} className="inline">
-              {[3, 4, 5, 6, 10].map((x) => <option key={x} value={x}>{x} ปี</option>)}
-            </select>
-            <span className="sub">({span})</span>
+          <div className="crit-row">
+            <div className="crit-i"><b>1</b> ข้อมูลย้อนหลังครบ
+              <select value={n} onChange={(e) => setN(+e.target.value)} className="inline">
+                {[3, 4, 5, 6, 10].map((x) => <option key={x} value={x}>{x} ปี</option>)}
+              </select>
+              <span className="sub">({span})</span>
+            </div>
+            <div className="crit-i"><b>2</b> มีข้อมูลปีปัจจุบัน
+              <input type="number" className="inline num" value={cur} min={2500} max={2700} onChange={(e) => setCur(+e.target.value || CUR_Y)} />
+            </div>
           </div>
-          <div className="crit-i"><b>2</b> มีข้อมูลปีปัจจุบัน
-            <input type="number" className="inline num" value={cur} min={2500} max={2700} onChange={(e) => setCur(+e.target.value || CUR_Y)} />
+          {/* ข้อ 3 กับตัวเลือกที่เกี่ยวกับข้อ 3 อยู่บรรทัดเดียวกัน */}
+          <div className="crit-row">
+            <div className="crit-i"><b>3</b> มีไฟล์ MR (ไฟล์ที่อ่านด้วยเครื่องได้ (CSV/Excel/JSON))
+              <span className="info" tabIndex={0} title={`รูปแบบที่นับเป็น MR: ${[...MR_FORMATS].join(", ")} — PDF, HTML, DOCX, รูปภาพ, RAR ไม่นับ`}
+                aria-label={`รูปแบบที่นับเป็น MR: ${[...MR_FORMATS].join(", ")}`}><Icon name="info" /></span>
+            </div>
+            <label className="crit-i toggle">
+              <input type="checkbox" checked={mrOnly} onChange={(e) => setMrOnly(e.target.checked)} />
+              นับปีเฉพาะจากไฟล์ MR (เข้มงวดกว่า)
+            </label>
           </div>
-          <div className="crit-i"><b>3</b> มีไฟล์ MR (ไฟล์ที่อ่านด้วยเครื่องได้ (CSV/Excel/JSON))
-            <span className="sub" title="PDF, HTML, DOCX, รูปภาพ, RAR ไม่นับ">({[...MR_FORMATS].join(", ")})</span>
-          </div>
-          <label className="crit-i toggle">
-            <input type="checkbox" checked={mrOnly} onChange={(e) => setMrOnly(e.target.checked)} />
-            นับปีเฉพาะจากไฟล์ MR (เข้มงวดกว่า)
-          </label>
         </div>
       </div>
 

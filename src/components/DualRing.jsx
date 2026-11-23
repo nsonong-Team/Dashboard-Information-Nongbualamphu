@@ -27,8 +27,9 @@ export default function DualRing({ outer, inner, size = 92, label, delay = 0, bi
       </svg>
       <figcaption>
         <span className="lbl" aria-hidden="true">ปี {String(cur).slice(2)}</span>
-        <b className="o">{Math.round(o)}<small>%</small></b>
-        <span className="i"><span className="lbl-i">ผ่าน </span>{Math.round(i)}%</span>
+        <b className={"o" + (Math.round(o) >= 100 ? " w3" : "")}>{Math.round(o)}<small>%</small></b>
+        {/* บรรทัดล่างไม่ใส่ % เพื่อไม่ให้ข้อความกว้างจนทับเส้นวง (ความหมายบอกด้วยคำว่า "ผ่าน" แล้ว) */}
+        <span className="i"><span className="lbl-i">ผ่าน </span>{Math.round(i)}</span>
       </figcaption>
     </figure>
   );

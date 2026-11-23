@@ -69,7 +69,10 @@ h2 .msi { color: var(--accent); }
 .col.cur .y { color: var(--accent); font-weight: 700; }
 
 /* ---------- compliance ---------- */
-.crit { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+.crit { display: grid; gap: 12px; }
+.crit-row { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; }
+.crit .info { display: inline-flex; color: var(--muted); cursor: help; }
+.crit .info:hover, .crit .info:focus-visible { color: var(--amber); }
 .crit-i { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 14px; margin: 0; color: var(--ink); }
 .crit-i > b { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; }
 .crit-i.toggle { color: var(--muted); font-size: 13px; cursor: pointer; }
