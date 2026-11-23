@@ -12,6 +12,10 @@ import Hero from "./components/Hero.jsx";
 import Overview from "./components/Overview.jsx";
 import DetailDrawer from "./components/DetailDrawer.jsx";
 import Icon from "./components/Icon.jsx";
+import { readUrlState, writeUrlState } from "./urlstate.js";
+
+const CFG0 = { cur: CUR_Y, n: 5, mrOnly: false };
+const URL0 = readUrlState(); // อ่านมุมมองจากลิงก์ครั้งเดียวตอนเปิดหน้า
 
 const EMPTY = { q: "", years: [], org: [], group: [], fmt: [], freq: [], access: [] };
 const CHECK_HIDE = ["years", "fmt", "access"]; // มุมมองระดับชุดข้อมูลมีเงื่อนไขปี/รูปแบบของตัวเอง
@@ -24,14 +28,17 @@ export default function App() {
   const [files, setFiles] = useState([]);
   const [allDs, setAllDs] = useState([]);
   const [status, setStatus] = useState({ loading: true, error: "", at: null });
-  const [filters, setFilters] = useState(EMPTY);
+  const [filters, setFilters] = useState({ ...EMPTY, ...URL0.filters });
   const [sort, setSort] = useState({ key: "mod", dir: -1 });
   const [autoMin, setAutoMin] = useState(0);
   const [preview, setPreview] = useState(null);
-  const [tab, setTab] = useState("overview");
-  const [cfg, setCfg] = useState({ cur: CUR_Y, n: 5, mrOnly: false });
-  const [view, setView] = useState("issue");
-  const [cardSort, setCardSort] = useState("order");
+  const [tab, setTab] = useState(URL0.tab || "overview");
+  const [cfg, setCfg] = useState({ cur: URL0.cfg.cur ?? CFG0.cur, n: URL0.cfg.n ?? CFG0.n, mrOnly: URL0.cfg.mrOnly ?? CFG0.mrOnly });
+  const [view, setView] = useState(URL0.view || "issue");
+  const [cardSort, setCardSort] = useState(URL0.cardSort || (URL0.view === "org" ? "need" : "order"));
+  const [show, setShow] = useState(URL0.show);
+  const [tier, setTier] = useState(URL0.tier);
+  const [toast, setToast] = useState("");
   const [detail, setDetail] = useState(null);
   const gridRef = useRef(null);
 
@@ -54,15 +61,23 @@ export default function App() {
     return () => clearInterval(t);
   }, [autoMin, load]);
   useEffect(() => { window.scrollTo({ top: 0 }); }, [tab]);
+  useEffect(() => { writeUrlState({ tab, view, cardSort, show, tier, filters, cfg, defaults: CFG0 }); }, [tab, view, cardSort, show, tier, filters, cfg]);
+  useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(""), 2400); return () => clearTimeout(t); }, [toast]);
+  const share = async () => {
+    try { await navigator.clipboard.writeText(location.href); setToast("คัดลอกลิงก์มุมมองนี้แล้ว — ส่งให้คนอื่นเปิดได้เลย"); }
+    catch { setToast("คัดลอกไม่ได้ — คัดลอกจากแถบที่อยู่ของเบราว์เซอร์แทน"); }
+  };
 
   const setF = (patch) => setFilters((f) => ({ ...f, ...patch }));
   const active = useMemo(() => ({ ...filters, q: filters.q.trim().toLowerCase() }), [filters]);
 
   const fileView = useMemo(() => {
     const getter = { name: (f) => f.name, org: (f) => f.org, year: (f) => f.yMax, fmt: (f) => f.fmt, mod: (f) => f.mod }[sort.key];
+    // ข้อความไทยเรียงตามพจนานุกรม (localeCompare) ไม่ใช่ตามรหัสตัวอักษร
+    const cmp = (x, y) => (typeof x === "string" && sort.key !== "mod" ? x.localeCompare(y, "th") : x > y ? 1 : x < y ? -1 : 0);
     return files
       .filter((f) => match(f, active))
-      .sort((a, b) => { const x = getter(a), y = getter(b); return (x > y ? 1 : x < y ? -1 : 0) * sort.dir; });
+      .sort((a, b) => cmp(getter(a), getter(b)) * sort.dir);
   }, [files, active, sort]);
 
   const yearCounts = useMemo(() => {
@@ -112,7 +127,7 @@ export default function App() {
       <main id="main" className="main">
         {tab === "overview" ? (
           ready && <Hero total={province} cur={cfg.cur} zeroOrgs={province.zero}
-            onFocusNeed={() => focusGrid("issue", "need")} onShowZero={() => focusGrid("org", "need")} />
+            onFocusNeed={() => focusGrid("issue", "need")} onShowZero={() => { setShow("zero"); setTier(""); focusGrid("org", "name"); }} />
         ) : (
           <header className="page-head">
             <h1>{TITLES[tab][0]}</h1>
@@ -138,7 +153,8 @@ export default function App() {
             </div>
           ) : tab === "overview" ? (
             <Overview ref={gridRef} datasets={evaluated} cfg={cfg} setCfg={setCfg} view={view} setView={setView}
-              sort={cardSort} setSort={setCardSort} onOpen={(row, meta) => setDetail({ row, meta })} />
+              sort={cardSort} setSort={setCardSort} show={show} setShow={setShow} tier={tier} setTier={setTier}
+              onOpen={(row, meta) => setDetail({ row, meta })} onShare={share} />
           ) : tab === "check" ? (
             <Compliance files={checkFiles} emptyDatasets={emptyDs} cfg={cfg} setCfg={setCfg} />
           ) : (
@@ -176,6 +192,7 @@ export default function App() {
         </div>
       </main>
 
+      <div className={"toast" + (toast ? " on" : "")} role="status" aria-live="polite">{toast && <><Icon name="check_circle" /> {toast}</>}</div>
       {preview && <PreviewDialog file={preview} onClose={() => setPreview(null)} />}
       {detail && <DetailDrawer row={detail.row} meta={detail.meta} cfg={cfg} byOrg={view === "org"} onClose={() => setDetail(null)} />}
     </div>

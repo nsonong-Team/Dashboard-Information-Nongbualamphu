@@ -19,7 +19,7 @@ export function shortName(name) {
   if (p) s = s.slice(p.length).trim();
   return s || name;
 }
-const isProvincial = (name) => /หนองบัวล(?:ำ|ํา)ภู/.test(name);
+export const isProvincial = (name) => /หนองบัวล(?:ำ|ํา)ภู/.test(name);
 
 // การ์ดหนึ่งใบ = หนึ่งประเด็นหรือหนึ่งหน่วยงาน
 export default function EntityCard({ row, meta, cur, index, onOpen }) {

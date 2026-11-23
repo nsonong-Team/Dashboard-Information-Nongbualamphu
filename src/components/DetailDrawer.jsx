@@ -6,6 +6,14 @@ import { dsStatus } from "./EntityCard.jsx";
 import { exportRows } from "../api.js";
 import { requiredYears, pct } from "../stats.js";
 
+const DSORTS = [
+  ["fail", "ไม่ผ่านก่อน"],
+  ["az", "ชื่อ ก → ฮ"],
+  ["za", "ชื่อ ฮ → ก"],
+  ["org", "หน่วยงาน ก → ฮ"],
+  ["orgR", "หน่วยงาน ฮ → ก"],
+  ["latest", "ปีล่าสุด เก่า → ใหม่"],
+];
 const FILTERS = [
   ["", "ทั้งหมด"],
   ["nocur", "ยังไม่มีปีปัจจุบัน"],
@@ -17,14 +25,30 @@ const FILTERS = [
 export default function DetailDrawer({ row, meta, cfg, byOrg, onClose }) {
   const ref = useRef(null);
   const [f, setF] = useState("");
+  const [q, setQ] = useState("");
+  const [ds, setDs] = useState("fail");
   const req = requiredYears(cfg.cur, cfg.n);
   useEffect(() => {
     const el = ref.current;
     if (el && !el.open) el.showModal();
   }, []);
-  const list = useMemo(() => row.items
-    .filter((d) => !f || (f === "nocur" ? !d.c2 : f === "fail" ? !d.pass : d.pass))
-    .sort((a, b) => Number(a.pass) - Number(b.pass) || Number(a.c2) - Number(b.c2) || a.title.localeCompare(b.title, "th")), [row, f]);
+  const list = useMemo(() => {
+    const needle = q.trim().toLowerCase();
+    const th = (a, b) => a.localeCompare(b, "th");
+    const cmp = {
+      fail: (a, b) => Number(a.pass) - Number(b.pass) || Number(a.c2) - Number(b.c2) || th(a.title, b.title),
+      az: (a, b) => th(a.title, b.title),
+      za: (a, b) => th(b.title, a.title),
+      org: (a, b) => th(a.org, b.org) || th(a.title, b.title),
+      orgR: (a, b) => th(b.org, a.org) || th(a.title, b.title),
+      latest: (a, b) => (a.latest || 0) - (b.latest || 0) || th(a.title, b.title),
+    }[ds];
+    return row.items
+      .filter((d) => !f || (f === "nocur" ? !d.c2 : f === "fail" ? !d.pass : d.pass))
+      .filter((d) => !needle || d.title.toLowerCase().includes(needle) || d.org.toLowerCase().includes(needle))
+      .sort(cmp);
+  }, [row, f, q, ds]);
+  const count = (k) => row.items.filter((d) => !k || (k === "nocur" ? !d.c2 : k === "fail" ? !d.pass : d.pass)).length;
 
   const yn = (b) => (b ? "ผ่าน" : "ไม่ผ่าน");
   const doExport = () => exportRows(`ติดตามข้อมูล_${meta.title}.csv`,
@@ -48,10 +72,19 @@ export default function DetailDrawer({ row, meta, cfg, byOrg, onClose }) {
         <div className="drawer-tools">
           <div className="seg inline-seg" role="group" aria-label="กรองสถานะ">
             {FILTERS.map(([v, l]) => (
-              <button key={v} type="button" className={f === v ? "on" : ""} aria-pressed={f === v} onClick={() => setF(v)}>{l}</button>
+              <button key={v} type="button" className={f === v ? "on" : ""} aria-pressed={f === v} onClick={() => setF(v)}>{l} <small>{count(v)}</small></button>
             ))}
           </div>
-          <button type="button" className="btn" onClick={doExport} disabled={!list.length}><Icon name="download" /> ส่งออก CSV</button>
+          <button type="button" className="btn" onClick={doExport} disabled={!list.length}><Icon name="download" /> ส่งออก CSV ({list.length})</button>
+        </div>
+        <div className="drawer-find">
+          <div className="inline-search">
+            <Icon name="search" />
+            <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={byOrg ? "ค้นหาชื่อชุดข้อมูล" : "ค้นหาชุดข้อมูลหรือหน่วยงาน"} aria-label="ค้นหาในรายการ" />
+          </div>
+          <select value={ds} onChange={(e) => setDs(e.target.value)} aria-label="เรียงรายการ">
+            {DSORTS.filter(([k]) => !byOrg || !k.startsWith("org")).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+          </select>
         </div>
         <ol className="drawer-list">
           {list.map((d) => {
@@ -75,7 +108,7 @@ export default function DetailDrawer({ row, meta, cfg, byOrg, onClose }) {
               </li>
             );
           })}
-          {!list.length && <li className="status">ไม่มีชุดข้อมูลในสถานะนี้</li>}
+          {!list.length && <li className="status">{q ? `ไม่พบ “${q}”` : "ไม่มีชุดข้อมูลในสถานะนี้"}</li>}
         </ol>
       </div>
     </dialog>

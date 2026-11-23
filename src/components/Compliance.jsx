@@ -18,6 +18,15 @@ const STATUS = [
 ];
 const BY = { org: ["หน่วยงาน", "apartment"], group: ["ประเด็น (กลุ่ม)", "category"] };
 
+const LSORTS = [
+  ["org", "หน่วยงาน ก → ฮ"],
+  ["orgR", "หน่วยงาน ฮ → ก"],
+  ["az", "ชื่อชุดข้อมูล ก → ฮ"],
+  ["za", "ชื่อชุดข้อมูล ฮ → ก"],
+  ["fail", "ไม่ผ่านก่อน"],
+  ["latest", "ปีล่าสุด เก่า → ใหม่"],
+];
+
 const Check = ({ ok, title }) => (
   <span className={"chk " + (ok ? "ok" : "bad")} title={title}><Icon name={ok ? "check_circle" : "cancel"} fill /></span>
 );
@@ -34,6 +43,7 @@ export default function Compliance({ files, emptyDatasets = [], cfg, setCfg }) {
   const [pick, setPick] = useState(""); // แถวที่คลิกเลือกในตารางสรุป
   const [status, setStatus] = useState("");
   const [q, setQ] = useState("");
+  const [lsort, setLsort] = useState("org");
   const [shown, setShown] = useState(PAGE);
   const [orgSort, setOrgSort] = useState({ key: "pct", dir: 1 });
 
@@ -70,12 +80,21 @@ export default function Compliance({ files, emptyDatasets = [], cfg, setCfg }) {
 
   const list = useMemo(() => {
     const needle = q.trim().toLowerCase();
+    const th = (a, b) => a.localeCompare(b, "th");
+    const cmp = {
+      org: (a, b) => th(a.org, b.org) || th(a.title, b.title),
+      orgR: (a, b) => th(b.org, a.org) || th(a.title, b.title),
+      az: (a, b) => th(a.title, b.title),
+      za: (a, b) => th(b.title, a.title),
+      fail: (a, b) => Number(a.pass) - Number(b.pass) || Number(a.c2) - Number(b.c2) || th(a.org, b.org),
+      latest: (a, b) => (a.latest || 0) - (b.latest || 0) || th(a.title, b.title),
+    }[lsort];
     return datasets.filter((d) =>
       (!pick || d.keys[by].includes(pick)) &&
-      (!needle || d.title.toLowerCase().includes(needle)) &&
+      (!needle || d.title.toLowerCase().includes(needle) || d.org.toLowerCase().includes(needle)) &&
       (!status || (status === "pass" ? d.pass : status === "fail" ? !d.pass : status === "nofile" ? !d.files.length : status === "api" ? d.access === "API" : status === "fileonly" ? d.access === "ไฟล์" : !d[status]))
-    );
-  }, [datasets, pick, by, status, q]);
+    ).sort(cmp);
+  }, [datasets, pick, by, status, q, lsort]);
   useEffect(() => setShown(PAGE), [list]);
 
   const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
@@ -180,6 +199,9 @@ export default function Compliance({ files, emptyDatasets = [], cfg, setCfg }) {
             <div className="inline-search"><Icon name="search" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ค้นหาชื่อชุดข้อมูล" /></div>
             <select value={status} onChange={(e) => setStatus(e.target.value)} className="inline">
               {STATUS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+            </select>
+            <select value={lsort} onChange={(e) => setLsort(e.target.value)} className="inline" aria-label="เรียงรายชุดข้อมูล">
+              {LSORTS.map(([v, l]) => <option key={v} value={v}>เรียง: {l}</option>)}
             </select>
             <button className="btn" onClick={exportList}><Icon name="download" /> ส่งออก CSV</button>
           </div>
