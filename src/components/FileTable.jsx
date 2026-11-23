@@ -58,7 +58,7 @@ export default function FileTable({ view, sort, setSort, onPreview }) {
                 </td>
                 <td className="ds c-org"><Icon name="apartment" className="mobile-only" /> {f.org}</td>
                 <td className="nowrap c-year"><Icon name="calendar_month" className="mobile-only" /> {yearLabel(f.years)}</td>
-                <td className="c-fmt"><span className={"fmt " + f.fmt}>{f.fmt}</span><AccessBadge type={f.access} /></td>
+                <td className="c-fmt"><span className="tagrow"><span className={"fmt " + f.fmt}>{f.fmt}</span><AccessBadge type={f.access} /></span></td>
                 <td className="ds nowrap c-date"><Icon name="update" className="mobile-only" /> {thDate(f.mod)}</td>
                 <td className="acts c-act">
                   <a href={f.url} target="_blank" rel="noopener"><Icon name="download" /> ดาวน์โหลด</a>

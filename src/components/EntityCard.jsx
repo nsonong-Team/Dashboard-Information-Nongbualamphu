@@ -11,10 +11,15 @@ export function dsStatus(d, cur) {
 }
 const RANK = { bad: 0, warn: 1, pass: 2 };
 
-const monogram = (name) => {
-  const s = name.replace(/^(สำนักงาน|ที่ทำการ|กรม|การ|โครงการ)/, "").trim();
-  return s.slice(0, 2);
-};
+// ชื่อย่อที่อ่านออก: ตัดคำนำหน้าหน่วยงานและชื่อจังหวัดออก เหลือแก่นของชื่อ
+const PREFIX = ["สำนักงานส่งเสริม", "สำนักงาน", "ที่ทำการ", "กระทรวง", "โครงการ", "สำนัก", "กรม"];
+export function shortName(name) {
+  let s = name.replace(/\s*(สาขา)?\s*(จังหวัด)?\s*หนองบัวล(?:ำ|ํา)ภู\s*/g, " ").trim();
+  const p = PREFIX.find((x) => s.startsWith(x) && s.length > x.length + 1);
+  if (p) s = s.slice(p.length).trim();
+  return s || name;
+}
+const isProvincial = (name) => /หนองบัวล(?:ำ|ํา)ภู/.test(name);
 
 // การ์ดหนึ่งใบ = หนึ่งประเด็นหรือหนึ่งหน่วยงาน
 export default function EntityCard({ row, meta, cur, index, onOpen }) {
@@ -26,7 +31,12 @@ export default function EntityCard({ row, meta, cur, index, onOpen }) {
   return (
     <article className={"ecard" + (need ? " need" : "")} style={{ "--i": Math.min(index, 12) }}>
       <header className="ecard-media">
-        {meta.img ? <img src={meta.img} alt="" loading="lazy" /> : <span className="mono" aria-hidden="true">{monogram(row.key)}</span>}
+        {meta.img ? <img src={meta.img} alt="" loading="lazy" /> : (
+          <div className="org-plate" aria-hidden="true">
+            <span className="org-short">{shortName(row.key)}</span>
+            <span className={"org-tier " + (isProvincial(row.key) ? "prov" : "central")}>{isProvincial(row.key) ? "ระดับจังหวัด" : "ส่วนกลาง/ภูมิภาค"}</span>
+          </div>
+        )}
         <span className="ecard-icon" aria-hidden="true"><Icon name={meta.icon} /></span>
       </header>
       <div className="ecard-head">
