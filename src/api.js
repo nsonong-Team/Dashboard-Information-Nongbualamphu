@@ -122,7 +122,7 @@ export function exportRows(filename, head, rows) {
 export function exportCSV(list) {
   exportRows(
     "รายการไฟล์.csv",
-    ["ชื่อไฟล์", "ชุดข้อมูล", "หน่วยงาน", "ปีข้อมูล", "รูปแบบ", "Machine readable", "อัปเดต", "ลิงก์ดาวน์โหลด", "หน้าเว็บ"],
+    ["ชื่อไฟล์", "ชุดข้อมูล", "หน่วยงาน", "ปีข้อมูล", "รูปแบบ", "MR (อ่านด้วยเครื่องได้)", "อัปเดต", "ลิงก์ดาวน์โหลด", "หน้าเว็บ"],
     list.map((f) => [f.name, f.ds, f.org, yearLabel(f.years), f.fmt, MR_FORMATS.has(f.fmt) ? "ใช่" : "ไม่ใช่", f.mod.slice(0, 10), f.url, f.page])
   );
 }

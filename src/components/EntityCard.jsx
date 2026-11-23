@@ -7,7 +7,7 @@ export function dsStatus(d, cur) {
   if (!d.files.length) return ["bad", "ไม่มีไฟล์"];
   if (!d.c2) return ["bad", `ไม่มีปี ${cur}`];
   if (!d.c1) return ["warn", "ย้อนหลังไม่ครบ"];
-  return ["warn", "ไม่ใช่ Machine readable"];
+  return ["warn", "ไม่มีไฟล์ MR"];
 }
 const RANK = { bad: 0, warn: 1, pass: 2 };
 
@@ -46,7 +46,7 @@ export default function EntityCard({ row, meta, cur, index, onOpen }) {
             {meta.sub && <> · {meta.sub}</>}
           </p>
         </div>
-        <DualRing outer={row.pCur} inner={row.pPass} size={86} delay={Math.min(index, 12) * 55} label={meta.title} />
+        <DualRing outer={row.pCur} inner={row.pPass} cur={cur} size={86} delay={Math.min(index, 12) * 55} label={meta.title} />
       </div>
       <dl className="ecard-nums">
         <div className="amber"><dt>ปี {cur}</dt><dd>{row.cur}<small>/{row.n}</small></dd></div>

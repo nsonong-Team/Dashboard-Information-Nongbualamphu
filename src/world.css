@@ -103,11 +103,11 @@ input, select { background: var(--bg-2); border-color: var(--line-hi); color: va
 .hero-photo { position: absolute; inset: 0 0 0 30%; z-index: -1; }
 .hero-photo > img:first-child {
   width: 100%; height: 100%; object-fit: cover; object-position: 40% 60%;
-  filter: brightness(.42) contrast(1.25) saturate(.55);
+  filter: brightness(.62) contrast(1.15) saturate(.7);
 }
 /* ปรับภาพกลางวันให้เป็นโทนยามค่ำ: ย้อมน้ำเงิน แล้วเฟดเข้าพื้นทางซ้ายและล่าง */
 .hero-photo::before {
-  content: ""; position: absolute; inset: 0; background: #1a3c94; mix-blend-mode: color; opacity: .85;
+  content: ""; position: absolute; inset: 0; background: #1a3c94; mix-blend-mode: color; opacity: .6;
 }
 .hero-photo::after {
   content: ""; position: absolute; inset: 0;
@@ -115,7 +115,7 @@ input, select { background: var(--bg-2); border-color: var(--line-hi); color: va
               linear-gradient(0deg, var(--bg) 2%, transparent 45%);
 }
 .hero-map {
-  position: absolute; right: 4%; top: -6%; height: 118%; width: auto; opacity: .3; z-index: 1;
+  position: absolute; right: 4%; top: -6%; height: 118%; width: auto; opacity: .18; z-index: 1;
   mix-blend-mode: screen; pointer-events: none;
 }
 .hero-body { position: relative; z-index: 2; max-width: 760px; }
@@ -179,6 +179,35 @@ input, select { background: var(--bg-2); border-color: var(--line-hi); color: va
 .dring .i { font: 600 12px/1 var(--font-display); color: var(--blue-hi); margin-top: 4px; }
 .dring.big .o { font-size: 52px; }
 .dring.big .i { font-size: 20px; margin-top: 8px; }
+/* ป้ายกำกับในวง */
+.dring .lbl { font: 600 9.5px/1 var(--font-display); color: var(--amber); opacity: .85; margin-bottom: 2px; letter-spacing: .02em; }
+.dring .lbl-i { font-size: .82em; font-weight: 500; opacity: .85; }
+.dring.big .lbl { font-size: 15px; margin-bottom: 6px; }
+.dring.sm .lbl, .dring.sm .lbl-i { display: none; }
+
+/* นิยามของตัวเลขในส่วนหัว + แจ้งเตือนเงื่อนไขที่ปรับเอง */
+.hero-legend .def { margin: 3px 0 0; max-width: 34ch; font-size: 12.5px; line-height: 1.45; color: #b6c3e2; }
+.custom-cond {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 8px 10px; border-radius: 10px;
+  background: var(--amber-soft); border: 1px solid rgba(255, 181, 70, .5); color: var(--amber); font-size: 13px; max-width: 34ch;
+}
+.custom-cond button {
+  margin-left: auto; cursor: pointer; background: var(--amber); color: var(--amber-ink); border: 0; border-radius: 8px;
+  padding: 5px 10px; font: 600 12.5px/1 var(--font-display);
+}
+.hero.compact .def, .hero.compact .custom-cond { display: none; }
+.cond .btn.custom { border-color: var(--amber); color: var(--amber); background: var(--amber-soft); }
+.cond-reset { width: 100%; justify-content: center; }
+
+/* ตัวกรองชุดข้อมูลในหน้าการ์ด: พับไว้หลังปุ่มเดียวทุกขนาดจอ */
+.compact-mode .filters { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.compact-mode .filters.collapsed > :not(:first-child) { display: none; }
+.compact-mode .filter-toggle { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.compact-mode .filter-toggle.active { border-color: var(--amber); color: var(--amber); background: var(--amber-soft); }
+.compact-mode .filters > :first-child { grid-column: 1 / -1; }
+.compact-mode .search-row .inline-search { max-width: 640px; }
+.filters-note { grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--muted); }
+.filters-note b { color: var(--ink); }
 .dring.low .o { color: var(--red); }
 
 /* ---------- แถบควบคุม + กริดการ์ด ---------- */

@@ -32,13 +32,14 @@ const TIERS = [["", "ทุกระดับ"], ["prov", "ระดับจั
 const ISSUE_ORDER = [...ISSUES, OTHER].map((i) => i.id);
 
 // ตั้งค่าเงื่อนไข (ใช้ร่วมกับแท็บตรวจสอบ)
-function CondSettings({ cfg, setCfg }) {
+function CondSettings({ cfg, setCfg, custom, resetCfg }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   usePopover(ref, open, setOpen);
   return (
     <div className="ms-wrap cond" ref={ref}>
-      <button type="button" className="btn" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+      <button type="button" className={"btn" + (custom ? " custom" : "")} onClick={() => setOpen((o) => !o)} aria-expanded={open}
+        title={custom ? "ใช้เงื่อนไขที่ปรับเอง ไม่ใช่ค่ามาตรฐาน" : "เงื่อนไขการตรวจ"}>
         <Icon name="tune" /> <span className="cond-l">เงื่อนไข: </span>{cfg.n} ปี · {cfg.cur}
       </button>
       {open && (
@@ -56,9 +57,10 @@ function CondSettings({ cfg, setCfg }) {
           </label>
           <label className="cond-row chk-row">
             <input type="checkbox" checked={cfg.mrOnly} onChange={(e) => setCfg((c) => ({ ...c, mrOnly: e.target.checked }))} />
-            นับปีเฉพาะไฟล์ Machine readable
+            นับปีเฉพาะไฟล์ MR (อ่านด้วยเครื่องได้)
           </label>
-          <p className="pop-foot">ผ่านเงื่อนไขครบ = ย้อนหลังครบ {cfg.n} ปี + มีปี {cfg.cur} + มีไฟล์ Machine readable</p>
+          {custom && <button type="button" className="btn cond-reset" onClick={resetCfg}><Icon name="restart_alt" /> คืนค่ามาตรฐาน (5 ปี · ปีปัจจุบัน)</button>}
+          <p className="pop-foot">ผ่านเงื่อนไขครบ = ย้อนหลังครบ {cfg.n} ปี + มีปี {cfg.cur} + มีไฟล์ MR (ไฟล์ที่อ่านด้วยเครื่องได้ (CSV/Excel/JSON))</p>
         </div>
         </>
       )}
@@ -66,7 +68,7 @@ function CondSettings({ cfg, setCfg }) {
   );
 }
 
-const Overview = forwardRef(function Overview({ datasets, cfg, setCfg, view, setView, sort, setSort, show, setShow, tier, setTier, onOpen, onShare }, gridRef) {
+const Overview = forwardRef(function Overview({ datasets, cfg, setCfg, custom, resetCfg, view, setView, sort, setSort, show, setShow, tier, setTier, onOpen, onShare }, gridRef) {
   const sub = (t) => t.replace("{cur}", cfg.cur);
   const all = useMemo(() => summarize(datasets, view === "issue" ? "issue" : "org"), [datasets, view]);
   const tiered = useMemo(() => (view === "org" && tier ? all.filter((r) => (isProvincial(r.key) ? "prov" : "central") === tier) : all), [all, view, tier]);
@@ -132,7 +134,7 @@ const Overview = forwardRef(function Overview({ datasets, cfg, setCfg, view, set
               {CARD_SORTS.filter(([, , only]) => !only || only === view).map(([k, l]) => <option key={k} value={k}>{sub(l)}</option>)}
             </select>
           </label>
-          <CondSettings cfg={cfg} setCfg={setCfg} />
+          <CondSettings cfg={cfg} setCfg={setCfg} custom={custom} resetCfg={resetCfg} />
         </div>
       </div>
       <div className="ov-result">

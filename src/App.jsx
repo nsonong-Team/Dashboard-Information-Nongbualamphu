@@ -118,6 +118,8 @@ export default function App() {
     requestAnimationFrame(() => gridRef.current?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }));
   };
 
+  const custom = cfg.cur !== CFG0.cur || cfg.n !== CFG0.n || cfg.mrOnly !== CFG0.mrOnly;
+  const resetCfg = () => setCfg(CFG0);
   const ready = !(status.loading && !files.length) && !(!files.length && status.error);
 
   return (
@@ -126,7 +128,7 @@ export default function App() {
       <Rail tab={tab} setTab={setTab} status={status} onReload={load} autoMin={autoMin} setAutoMin={setAutoMin} />
       <main id="main" className="main">
         {tab === "overview" ? (
-          ready && <Hero total={province} cur={cfg.cur} zeroOrgs={province.zero}
+          ready && <Hero total={province} cfg={cfg} custom={custom} onResetCfg={resetCfg} zeroOrgs={province.zero}
             onFocusNeed={() => focusGrid("issue", "need")} onShowZero={() => { setShow("zero"); setTier(""); focusGrid("org", "name"); }} />
         ) : (
           <header className="page-head">
@@ -136,7 +138,7 @@ export default function App() {
         )}
 
         <div className="content">
-          <Filters files={files} filters={filters} active={active} setF={setF} reset={() => setFilters(EMPTY)} hide={tab === "files" ? [] : CHECK_HIDE} />
+          <Filters files={files} filters={filters} active={active} setF={setF} reset={() => setFilters(EMPTY)} hide={tab === "files" ? [] : CHECK_HIDE} compact={tab === "overview"} />
 
           {status.loading && !files.length ? (
             <div className="egrid skel" aria-busy="true" aria-label="กำลังดึงข้อมูลจาก GD Catalog">
@@ -152,7 +154,7 @@ export default function App() {
               <button type="button" className="btn-amber" onClick={load}><Icon name="refresh" /> ลองอีกครั้ง</button>
             </div>
           ) : tab === "overview" ? (
-            <Overview ref={gridRef} datasets={evaluated} cfg={cfg} setCfg={setCfg} view={view} setView={setView}
+            <Overview ref={gridRef} datasets={evaluated} cfg={cfg} setCfg={setCfg} custom={custom} resetCfg={resetCfg} view={view} setView={setView}
               sort={cardSort} setSort={setCardSort} show={show} setShow={setShow} tier={tier} setTier={setTier}
               onOpen={(row, meta) => setDetail({ row, meta })} onShare={share} />
           ) : tab === "check" ? (

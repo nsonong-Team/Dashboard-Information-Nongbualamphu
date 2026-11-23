@@ -6,8 +6,15 @@ import { useCountUp } from "../hooks.js";
 const Num = ({ v }) => <>{Math.round(useCountUp(v)).toLocaleString()}</>;
 
 // ส่วนหัว: ภาพจังหวัดยามค่ำ + หัวข้อใหญ่ + วงสัญญาณของทั้งจังหวัด — เลื่อนลงแล้วหดเป็นแถบบาง (กดย่อ/ขยายเองได้)
-export default function Hero({ total, cur, zeroOrgs, onFocusNeed, onShowZero }) {
-  const [compact, setCompact] = useState(false); // ผู้ใช้กดย่อเอง
+const KEY = "nbl-hero-compact";
+const readCompact = () => { try { return localStorage.getItem(KEY) === "1"; } catch { return false; } };
+
+export default function Hero({ total, cfg, custom, onResetCfg, zeroOrgs, onFocusNeed, onShowZero }) {
+  const cur = cfg.cur;
+  // ผู้ใช้กดย่อเอง — จำไว้ในเครื่อง (คนที่เปิดทุกวันไม่ต้องเลื่อนผ่านส่วนหัวใหญ่ทุกครั้ง)
+  const [compact, setCompactRaw] = useState(readCompact);
+  const setCompact = (v) => { setCompactRaw(v); try { localStorage.setItem(KEY, v ? "1" : "0"); } catch { /* โหมดส่วนตัว */ } };
+  const back0 = cur - cfg.n + 1;
   const [scrolled, setScrolled] = useState(false);
   const sentinel = useRef(null);
   useEffect(() => {
@@ -39,10 +46,18 @@ export default function Hero({ total, cur, zeroOrgs, onFocusNeed, onShowZero }) 
           </div>
         </div>
         <div className="hero-signal">
-          <DualRing outer={total.pCur} inner={total.pPass} size={compact ? 72 : 208} big={!compact} label="ทั้งจังหวัด" />
+          <DualRing outer={total.pCur} inner={total.pPass} size={compact ? 72 : 208} big={!compact} label="ทั้งจังหวัด" cur={cur} />
           <dl className="hero-legend">
-            <div className="amber"><dt>มีข้อมูลปี {cur}</dt><dd><Num v={total.cur} /> <small>/ {total.n.toLocaleString()} ชุด</small></dd></div>
-            <div className="blue"><dt>ผ่านเงื่อนไขครบ</dt><dd><Num v={total.pass} /> <small>/ {total.n.toLocaleString()} ชุด</small></dd></div>
+            <div className="amber"><dt>มีข้อมูลปี {cur}</dt><dd><Num v={total.cur} /> <small>/ {total.n.toLocaleString()} ชุด</small></dd>
+              <p className="def">ชุดข้อมูลที่มีข้อมูลของปี {cur} อย่างน้อย 1 ไฟล์</p></div>
+            <div className="blue"><dt>ผ่านเงื่อนไขครบ</dt><dd><Num v={total.pass} /> <small>/ {total.n.toLocaleString()} ชุด</small></dd>
+              <p className="def">ครบทั้ง 3 ข้อ: ย้อนหลังครบ {cfg.n} ปี ({back0}–{cur}) · มีปี {cur} · มีไฟล์ MR (อ่านด้วยเครื่องได้ — CSV/Excel/JSON){cfg.mrOnly ? " · นับปีเฉพาะไฟล์ MR" : ""}</p></div>
+            {custom && (
+              <div className="custom-cond" role="status">
+                <Icon name="tune" /><span>ใช้เงื่อนไขที่ปรับเอง ไม่ใช่ค่ามาตรฐาน</span>
+                <button type="button" onClick={onResetCfg}>คืนค่ามาตรฐาน</button>
+              </div>
+            )}
           </dl>
         </div>
         {zeroOrgs > 0 && (

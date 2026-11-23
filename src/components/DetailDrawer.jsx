@@ -52,14 +52,14 @@ export default function DetailDrawer({ row, meta, cfg, byOrg, onClose }) {
 
   const yn = (b) => (b ? "ผ่าน" : "ไม่ผ่าน");
   const doExport = () => exportRows(`ติดตามข้อมูล_${meta.title}.csv`,
-    ["ชุดข้อมูล", "หน่วยงาน", `มีปี ${cfg.cur}`, `ย้อนหลังครบ ${req[0]}–${req[req.length - 1]}`, "Machine readable", "ผลรวม", "เหตุผล", "API / ไฟล์", "ลิงก์"],
+    ["ชุดข้อมูล", "หน่วยงาน", `มีปี ${cfg.cur}`, `ย้อนหลังครบ ${req[0]}–${req[req.length - 1]}`, "MR (อ่านด้วยเครื่องได้)", "ผลรวม", "เหตุผล", "API / ไฟล์", "ลิงก์"],
     list.map((d) => [d.title, d.org, yn(d.c2), yn(d.c1), yn(d.c3), yn(d.pass), d.reasons.join("; "), d.access === "none" ? "ไม่มีไฟล์" : d.access, d.url]));
 
   return (
     <dialog ref={ref} className="drawer" onClose={onClose} onClick={(e) => { if (e.target === ref.current) ref.current.close(); }} aria-labelledby="drawer-title">
       <div className="drawer-in">
         <header className="drawer-head">
-          <DualRing outer={row.pCur} inner={row.pPass} size={76} label={meta.title} />
+          <DualRing outer={row.pCur} inner={row.pPass} cur={cfg.cur} size={76} label={meta.title} />
           <div>
             <h2 id="drawer-title">{meta.title}</h2>
             <p className="sub">

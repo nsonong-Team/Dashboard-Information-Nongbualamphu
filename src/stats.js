@@ -43,7 +43,7 @@ export function evaluate(files, emptyDatasets, { cur, n, mrOnly }) {
       if (back.length) reasons.push(`ขาดปี ${back.join(", ")}`);
     }
     if (d.files.length && !c2) reasons.push(`ไม่มีปี ${cur}`);
-    if (d.files.length && !c3) reasons.push("ไม่มีไฟล์ Machine readable");
+    if (d.files.length && !c3) reasons.push("ไม่มีไฟล์ MR (ไฟล์ที่อ่านด้วยเครื่องได้ (CSV/Excel/JSON)) — อัปโหลดเป็น CSV หรือ Excel แทน PDF");
     const issues = issuesOf(d.groups);
     return {
       ...d, ys, missing, c1, c2, c3, pass: c1 && c2 && c3, reasons,

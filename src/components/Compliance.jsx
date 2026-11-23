@@ -11,7 +11,7 @@ const STATUS = [
   ["fail", "ไม่ผ่านอย่างน้อย 1 ข้อ"],
   ["c1", "ข้อมูลย้อนหลังไม่ครบ"],
   ["c2", "ไม่มีข้อมูลปีปัจจุบัน"],
-  ["c3", "ไม่มีไฟล์ Machine readable"],
+  ["c3", "ไม่มีไฟล์ MR (อ่านด้วยเครื่องได้)"],
   ["nofile", "ไม่มีไฟล์แนบ"],
   ["api", "มี API"],
   ["fileonly", "เป็นไฟล์อย่างเดียว (ไม่มี API)"],
@@ -104,10 +104,10 @@ export default function Compliance({ files, emptyDatasets = [], cfg, setCfg }) {
   const span = `${required[0]}–${required[required.length - 1]}`;
 
   const exportOrgs = () => exportRows(`ผลตรวจราย${BY[by][0]}_${span}.csv`,
-    [BY[by][0], "ชุดข้อมูล", "มี API", "ไฟล์อย่างเดียว", `ย้อนหลังครบ ${span}`, `มีปี ${cur}`, "Machine readable", "ผ่านครบ", "% ผ่าน"],
+    [BY[by][0], "ชุดข้อมูล", "มี API", "ไฟล์อย่างเดียว", `ย้อนหลังครบ ${span}`, `มีปี ${cur}`, "MR (อ่านด้วยเครื่องได้)", "ผ่านครบ", "% ผ่าน"],
     orgRows.map((r) => [r.org, r.n, r.api, r.file, r.c1, r.c2, r.c3, r.pass, pct(r.pass, r.n)]));
   const exportList = () => exportRows(`ผลตรวจรายชุดข้อมูล_${span}.csv`,
-    ["หน่วยงาน", "ประเด็น (กลุ่ม)", "ชุดข้อมูล", "API / ไฟล์", "ปีที่มีข้อมูล", "ปีที่ขาด", `ย้อนหลังครบ ${span}`, `มีปี ${cur}`, "Machine readable", "รูปแบบไฟล์", "ผลรวม", "เหตุผล", "ลิงก์"],
+    ["หน่วยงาน", "ประเด็น (กลุ่ม)", "ชุดข้อมูล", "API / ไฟล์", "ปีที่มีข้อมูล", "ปีที่ขาด", `ย้อนหลังครบ ${span}`, `มีปี ${cur}`, "MR (อ่านด้วยเครื่องได้)", "รูปแบบไฟล์", "ผลรวม", "เหตุผล", "ลิงก์"],
     list.map((d) => [d.org, d.groups.join(" / "), d.title, d.access === "none" ? "ไม่มีไฟล์" : d.access, [...d.ys].sort().join(" "), d.missing.join(" "), yn(d.c1), yn(d.c2), yn(d.c3), d.fmts.join(" "), yn(d.pass), d.reasons.join("; "), d.url]));
 
   return (
@@ -124,12 +124,12 @@ export default function Compliance({ files, emptyDatasets = [], cfg, setCfg }) {
           <div className="crit-i"><b>2</b> มีข้อมูลปีปัจจุบัน
             <input type="number" className="inline num" value={cur} min={2500} max={2700} onChange={(e) => setCur(+e.target.value || CUR_Y)} />
           </div>
-          <div className="crit-i"><b>3</b> มีไฟล์ Machine readable
+          <div className="crit-i"><b>3</b> มีไฟล์ MR (ไฟล์ที่อ่านด้วยเครื่องได้ (CSV/Excel/JSON))
             <span className="sub" title="PDF, HTML, DOCX, รูปภาพ, RAR ไม่นับ">({[...MR_FORMATS].join(", ")})</span>
           </div>
           <label className="crit-i toggle">
             <input type="checkbox" checked={mrOnly} onChange={(e) => setMrOnly(e.target.checked)} />
-            นับปีเฉพาะจากไฟล์ Machine readable (เข้มงวดกว่า)
+            นับปีเฉพาะจากไฟล์ MR (เข้มงวดกว่า)
           </label>
         </div>
       </div>
@@ -139,7 +139,7 @@ export default function Compliance({ files, emptyDatasets = [], cfg, setCfg }) {
         <Kpi icon="verified" tone="ok" v={total.pass} l={`ผ่านครบทุกข้อ (${pct(total.pass, total.n)}%)`} />
         <Kpi icon="history" v={total.c1} l={`ย้อนหลังครบ ${span} (${pct(total.c1, total.n)}%)`} />
         <Kpi icon="event_available" v={total.c2} l={`มีข้อมูลปี ${cur} (${pct(total.c2, total.n)}%)`} />
-        <Kpi icon="table_view" v={total.c3} l={`Machine readable (${pct(total.c3, total.n)}%)`} />
+        <Kpi icon="table_view" v={total.c3} l={`มีไฟล์ MR — อ่านด้วยเครื่องได้ (${pct(total.c3, total.n)}%)`} />
         <Kpi icon="api" v={total.api} l={`มี API (${pct(total.api, total.n)}%) · ไฟล์อย่างเดียว ${total.file}`} />
       </div>
 
@@ -165,7 +165,7 @@ export default function Compliance({ files, emptyDatasets = [], cfg, setCfg }) {
                 <th className="r" onClick={() => sortOrg("file")}>ไฟล์อย่างเดียว{arrow("file")}</th>
                 <th className="r" onClick={() => sortOrg("c1")}>ย้อนหลังครบ{arrow("c1")}</th>
                 <th className="r" onClick={() => sortOrg("c2")}>มีปี {cur}{arrow("c2")}</th>
-                <th className="r" onClick={() => sortOrg("c3")}>Machine readable{arrow("c3")}</th>
+                <th className="r" onClick={() => sortOrg("c3")} title="MR (ไฟล์ที่อ่านด้วยเครื่องได้ (CSV/Excel/JSON))">MR (อ่านด้วยเครื่องได้){arrow("c3")}</th>
                 <th onClick={() => sortOrg("pct")}>ผ่านครบ{arrow("pct")}</th>
               </tr>
             </thead>
@@ -178,7 +178,7 @@ export default function Compliance({ files, emptyDatasets = [], cfg, setCfg }) {
                   <td className="r" data-label="ไฟล์อย่างเดียว">{r.file}</td>
                   <td className="r" data-label="ย้อนหลังครบ"><Frac a={r.c1} b={r.n} /></td>
                   <td className="r" data-label={`มีปี ${cur}`}><Frac a={r.c2} b={r.n} /></td>
-                  <td className="r" data-label="Machine readable"><Frac a={r.c3} b={r.n} /></td>
+                  <td className="r" data-label="MR (อ่านด้วยเครื่องได้)"><Frac a={r.c3} b={r.n} /></td>
                   <td className="pctcell" data-label="ผ่านครบ">
                     <span className="pbar"><i className={r.pct >= 0.8 ? "ok" : r.pct >= 0.5 ? "mid" : "bad"} style={{ width: `${r.pct * 100}%` }} /></span>
                     <span className="nowrap">{r.pass}/{r.n} · {pct(r.pass, r.n)}%</span>
@@ -221,7 +221,7 @@ export default function Compliance({ files, emptyDatasets = [], cfg, setCfg }) {
                 <th>ปี {span}</th>
                 <th className="c">ย้อนหลัง</th>
                 <th className="c">ปี {cur}</th>
-                <th className="c">MR</th>
+                <th className="c" title="MR (ไฟล์ที่อ่านด้วยเครื่องได้ (CSV/Excel/JSON))">MR</th>
                 <th>รูปแบบ</th>
                 <th>ผล</th>
               </tr>

@@ -13,7 +13,8 @@ function counts(list, fn) {
 const LABELS = { q: "ค้นหา", years: "ปี", org: "หน่วยงาน", group: "กลุ่ม", fmt: "รูปแบบ", freq: "ความถี่", access: "การเข้าถึง" };
 
 // ตัวเลขในแต่ละตัวเลือกคำนวณจากตัวกรองอื่น ๆ ที่เลือกอยู่ (เช่น เลือกหน่วยงานแล้ว ตัวเลขปีจะเป็นของหน่วยงานนั้น)
-export default function Filters({ files, filters, active, setF, reset, hide = [] }) {
+// compact = หน้าการ์ด: ตัวกรองชุดข้อมูลพับไว้หลังปุ่มเดียวทุกขนาดจอ (ตัวควบคุมของการ์ดเป็นแถวหลัก)
+export default function Filters({ files, filters, active, setF, reset, hide = [], compact = false }) {
   const [text, setText] = useState(filters.q);
   useEffect(() => { const t = setTimeout(() => setF({ q: text }), 250); return () => clearTimeout(t); }, [text]);
   useEffect(() => { if (filters.q === "" && text !== "") setText(""); }, [filters.q]);
@@ -40,10 +41,10 @@ export default function Filters({ files, filters, active, setF, reset, hide = []
   const chipText = (k, v) => (k === "q" ? v : k === "years" ? yearsSummary(v) : v.length > 2 ? `${v[0]} +${v.length - 1}` : v.join(", "));
 
   return (
-    <div className="card">
+    <div className={"card filters-card" + (compact ? " compact-mode" : "")}>
       <div className={"filters" + (hide.length ? " narrow" : "") + (expanded ? "" : " collapsed")}>
         <div>
-          <div className="lab">ค้นหา (ชื่อไฟล์ / ชุดข้อมูล / คำอธิบาย)</div>
+          <div className="lab">{compact ? "ค้นหาชุดข้อมูล (ชื่อ / คำอธิบาย / หน่วยงาน)" : "ค้นหา (ชื่อไฟล์ / ชุดข้อมูล / คำอธิบาย)"}</div>
           <div className="search-row">
             <div className="inline-search big">
               <Icon name="search" />
@@ -51,16 +52,17 @@ export default function Filters({ files, filters, active, setF, reset, hide = []
               {text && <button type="button" className="icon-btn" onClick={() => setText("")} title="ล้าง"><Icon name="close" /></button>}
             </div>
             <button type="button" className={"btn filter-toggle" + (nActive ? " active" : "")} onClick={() => setExpanded((x) => !x)} aria-expanded={expanded}>
-              <Icon name="tune" /> ตัวกรอง{nActive ? ` (${nActive})` : ""}
+              <Icon name="tune" /> {compact ? "กรองชุดข้อมูล" : "ตัวกรอง"}{nActive ? ` (${nActive})` : ""}
               <Icon name={expanded ? "expand_less" : "expand_more"} />
             </button>
           </div>
         </div>
+        {compact && expanded && <p className="filters-note">ตัวกรองนี้คัดเลือก <b>ชุดข้อมูล</b> ก่อนนับลงการ์ด — การ์ดและตัวเลขทุกใบจะนับเฉพาะชุดที่ตรงตัวกรอง</p>}
         {!hide.includes("years") && (
           <YearPicker options={opts.years} value={filters.years} onChange={(years) => setF({ years })} totalFor={totalFor} />
         )}
-        <MultiSelect label="หน่วยงาน" icon="apartment" allLabel="ทุกหน่วยงาน" options={opts.org} value={filters.org} onChange={(org) => setF({ org })} />
-        <MultiSelect label="กลุ่ม/ประเด็น" icon="category" allLabel="ทุกกลุ่ม" options={opts.group} value={filters.group} onChange={(group) => setF({ group })} />
+        <MultiSelect label={compact ? "หน่วยงานเจ้าของข้อมูล" : "หน่วยงาน"} icon="apartment" allLabel="ทุกหน่วยงาน" options={opts.org} value={filters.org} onChange={(org) => setF({ org })} />
+        <MultiSelect label={compact ? "กลุ่มใน GD Catalog" : "กลุ่ม/ประเด็น"} icon="category" allLabel="ทุกกลุ่ม" options={opts.group} value={filters.group} onChange={(group) => setF({ group })} />
         {!hide.includes("fmt") && (
           <MultiSelect label="รูปแบบไฟล์" icon="description" allLabel="ทุกรูปแบบ" options={opts.fmt} value={filters.fmt} onChange={(fmt) => setF({ fmt })} />
         )}
