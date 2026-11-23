@@ -1,0 +1,81 @@
+[
+  {
+    "file": "public/img/hero-wangbuaban.jpg",
+    "use": "hero",
+    "source": "https://commons.wikimedia.org/wiki/File:%E0%B8%A7%E0%B8%B1%E0%B8%87%E0%B8%9A%E0%B8%B1%E0%B8%A7%E0%B8%9A%E0%B8%B2%E0%B8%99@%E0%B8%AB%E0%B8%99%E0%B8%AD%E0%B8%87%E0%B8%9A%E0%B8%B1%E0%B8%A7%E0%B8%A5%E0%B8%B3%E0%B8%A0%E0%B8%B9_-_panoramio.jpg",
+    "title": "วังบัวบาน@หนองบัวลำภู - panoramio.jpg",
+    "author": "o_bankok",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "bytes": 1093171
+  },
+  {
+    "file": "public/img/issue-life.jpg",
+    "use": "การพัฒนาคุณภาพชีวิต",
+    "source": "https://commons.wikimedia.org/wiki/File:Nice_Issan_House_-_panoramio.jpg",
+    "title": "Nice Issan House - panoramio.jpg",
+    "author": "scottylu",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "bytes": 205274
+  },
+  {
+    "file": "public/img/issue-budget.jpg",
+    "use": "การบริหารงบประมาณ",
+    "source": "https://commons.wikimedia.org/wiki/File:High_Street_Suwannakuha_-_panoramio.jpg",
+    "title": "High Street Suwannakuha - panoramio.jpg",
+    "author": "scottylu",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "bytes": 180602
+  },
+  {
+    "file": "public/img/issue-tourism.jpg",
+    "use": "การส่งเสริมการท่องเที่ยวและการค้า (OTOP)",
+    "source": "https://commons.wikimedia.org/wiki/File:Erawan_Caves_Nongbualamphu_Thailand.jpg",
+    "title": "Erawan Caves Nongbualamphu Thailand.jpg",
+    "author": "Thanongsuk harakunno",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "bytes": 227332
+  },
+  {
+    "file": "public/img/issue-waste.jpg",
+    "use": "การจัดการขยะมูลฝอย",
+    "source": "https://commons.wikimedia.org/wiki/File:Koh_Tao_Island,_Waste_Sorting_Area.JPG",
+    "title": "Koh Tao Island, Waste Sorting Area.JPG",
+    "author": "Myat T. Aung",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "bytes": 298684
+  },
+  {
+    "file": "public/img/issue-disaster.jpg",
+    "use": "การบริหารจัดการภัยพิบัติ",
+    "source": "https://commons.wikimedia.org/wiki/File:Drought_in_Southeast_Asia_(14733).jpg",
+    "title": "Drought in Southeast Asia (14733).jpg",
+    "author": "NASA image created by Jesse Allen, Earth Observatory, using data provided by the joint Global Agricultural Monitoring Project between NASA, USDA’s Foreign Agricultural Service (FAS), and the University of Maryland. More data and information about this joint project is available at Satellite Information for Agricultural Monitoring.",
+    "license": "Public domain",
+    "bytes": 221585
+  },
+  {
+    "file": "public/img/issue-other.jpg",
+    "use": "ประเด็นอื่น ๆ",
+    "source": "https://commons.wikimedia.org/wiki/File:Planting_Rice_-_panoramio.jpg",
+    "title": "Planting Rice - panoramio.jpg",
+    "author": "scottylu",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "bytes": 300842
+  },
+  {
+    "file": "public/img/districts-line.svg",
+    "use": "แผนที่อำเภอ (ดัดแปลงเป็นเส้น: ลบพื้นหลังและสี)",
+    "source": "https://commons.wikimedia.org/wiki/File:Districts_Nong_Bua_Lamphu.svg",
+    "title": "Districts Nong Bua Lamphu.svg",
+    "author": "SietsL",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "bytes": 149675
+  }
+]

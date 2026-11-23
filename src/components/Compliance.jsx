@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { CUR_Y, MR_FORMATS, exportRows } from "../api.js";
+import { evaluate, NO_GROUP, requiredYears } from "../stats.js";
 import Icon from "./Icon.jsx";
 import AccessBadge from "./AccessBadge.jsx";
 
@@ -15,7 +16,6 @@ const STATUS = [
   ["api", "มี API"],
   ["fileonly", "เป็นไฟล์อย่างเดียว (ไม่มี API)"],
 ];
-const NO_GROUP = "ไม่ระบุประเด็น";
 const BY = { org: ["หน่วยงาน", "apartment"], group: ["ประเด็น (กลุ่ม)", "category"] };
 
 const Check = ({ ok, title }) => (
@@ -24,10 +24,12 @@ const Check = ({ ok, title }) => (
 
 // ตรวจสอบชุดข้อมูลตามเงื่อนไข: (1) ย้อนหลังครบ N ปี (2) มีปีปัจจุบัน (3) Machine readable (4) สรุปรายหน่วยงาน (5) ส่งออกผลตรวจ
 // emptyDatasets = ชุดข้อมูลที่ยังไม่มีไฟล์แนบ (นับเป็นไม่ผ่านทุกข้อ)
-export default function Compliance({ files, emptyDatasets = [] }) {
-  const [cur, setCur] = useState(CUR_Y);
-  const [n, setN] = useState(5);
-  const [mrOnly, setMrOnly] = useState(false);
+// cfg = { cur, n, mrOnly } ใช้ร่วมกับหน้าการ์ด (ตั้งค่าที่เดียว)
+export default function Compliance({ files, emptyDatasets = [], cfg, setCfg }) {
+  const { cur, n, mrOnly } = cfg;
+  const setCur = (cur) => setCfg((c) => ({ ...c, cur }));
+  const setN = (n) => setCfg((c) => ({ ...c, n }));
+  const setMrOnly = (mrOnly) => setCfg((c) => ({ ...c, mrOnly }));
   const [by, setBy] = useState("org"); // สรุปตาม หน่วยงาน หรือ ประเด็น
   const [pick, setPick] = useState(""); // แถวที่คลิกเลือกในตารางสรุป
   const [status, setStatus] = useState("");
@@ -35,36 +37,9 @@ export default function Compliance({ files, emptyDatasets = [] }) {
   const [shown, setShown] = useState(PAGE);
   const [orgSort, setOrgSort] = useState({ key: "pct", dir: 1 });
 
-  const required = useMemo(() => Array.from({ length: n }, (_, i) => cur - n + 1 + i), [cur, n]);
+  const required = useMemo(() => requiredYears(cur, n), [cur, n]);
 
-  const datasets = useMemo(() => {
-    const m = new Map();
-    for (const e of emptyDatasets) m.set(e.dsId, { id: e.dsId, title: e.ds, url: e.dsUrl, org: e.org, groups: e.groups, files: [] });
-    for (const f of files) {
-      let d = m.get(f.dsId);
-      if (!d) { d = { id: f.dsId, title: f.ds, url: f.dsUrl, org: f.org, groups: f.groups, files: [] }; m.set(f.dsId, d); }
-      d.files.push(f);
-    }
-    return [...m.values()].map((d) => {
-      const mrFiles = d.files.filter((f) => MR_FORMATS.has(f.fmt));
-      const ys = new Set((mrOnly ? mrFiles : d.files).flatMap((f) => f.years));
-      const missing = required.filter((y) => !ys.has(y));
-      const c1 = missing.length === 0, c2 = ys.has(cur), c3 = mrFiles.length > 0;
-      const reasons = [];
-      if (!d.files.length) reasons.push("ไม่มีไฟล์แนบ");
-      else if (!c1) reasons.push(`ขาดปี ${missing.join(", ")}`);
-      if (d.files.length && !c2) reasons.push(`ไม่มีปี ${cur}`);
-      if (d.files.length && !c3) reasons.push("ไม่มีไฟล์ Machine readable");
-      return {
-        ...d, ys, missing, c1, c2, c3, pass: c1 && c2 && c3, reasons,
-        fmts: [...new Set(d.files.map((f) => f.fmt))],
-        latest: ys.size ? Math.max(...ys) : null,
-        access: !d.files.length ? "none" : d.files.some((f) => f.access === "API") ? "API" : "ไฟล์",
-        nApi: d.files.filter((f) => f.access === "API").length,
-        keys: { org: [d.org], group: d.groups.length ? d.groups : [NO_GROUP] },
-      };
-    }).sort((a, b) => a.org.localeCompare(b.org, "th") || a.title.localeCompare(b.title, "th"));
-  }, [files, emptyDatasets, required, cur, mrOnly]);
+  const datasets = useMemo(() => evaluate(files, emptyDatasets, cfg), [files, emptyDatasets, cfg]);
 
   const orgRows = useMemo(() => {
     const m = new Map();

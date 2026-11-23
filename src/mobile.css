@@ -19,11 +19,11 @@
   .m-sort.mobile-only { display: flex; }
 
   /* header */
-  header { gap: 10px; margin-bottom: 10px; align-items: stretch; flex-direction: column; }
+  .wrap > header { gap: 10px; margin-bottom: 10px; align-items: stretch; flex-direction: column; }
   h1 { font-size: 18px; }
   h1 .msi { font-size: 22px; }
-  header .row { display: grid; grid-template-columns: 1fr auto auto; }
-  header .row .btn { padding: 8px 10px; }
+  .wrap > header .row { display: grid; grid-template-columns: 1fr auto auto; }
+  .wrap > header .row .btn { padding: 8px 10px; }
 
   /* tabs เต็มความกว้าง */
   .tabs button { flex: 1; padding: 10px 6px; font-size: 14px; }

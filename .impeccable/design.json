@@ -1,0 +1,17 @@
+{
+  "world": "night-lotus-control-room",
+  "theme": "dark-only",
+  "color": {
+    "bg": "#060c1a", "bg2": "#0a1326", "card": "#0d1730", "cardHi": "#13203f",
+    "line": "#1e2c4f", "lineHi": "#2c3f6b",
+    "ink": "#e9eefb", "muted": "#9aaacb", "faint": "#8494b8",
+    "amber": "#ffb546", "amberSoft": "#3a2a0c", "amberInk": "#1a1206",
+    "blue": "#5b95ff", "blueHi": "#9dbfff", "blueSoft": "#14244a",
+    "red": "#ff5d6c", "redSoft": "#3b1420"
+  },
+  "roles": { "currentYear": "amber", "passAll": "blue", "api": "blue", "needsFollowUp": "red", "primaryAction": "amber" },
+  "font": { "display": "Chakra Petch", "body": "Anuphan", "source": "@fontsource (self-hosted)" },
+  "radius": { "card": 16, "control": 10, "badge": 999 },
+  "motion": { "ease": "cubic-bezier(.16,1,.3,1)", "ringDraw": "1.3s", "cardStagger": "45ms", "reducedMotion": "disabled" },
+  "icons": "Material Symbols Rounded"
+}
