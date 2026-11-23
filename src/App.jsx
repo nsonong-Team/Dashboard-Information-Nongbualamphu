@@ -13,6 +13,7 @@ const CHECK_HIDE = ["years", "fmt"]; // แท็บตรวจสอบมี�
 
 export default function App() {
   const [files, setFiles] = useState([]);
+  const [datasets, setDatasets] = useState([]);
   const [status, setStatus] = useState({ loading: true, error: "", at: null });
   const [filters, setFilters] = useState(EMPTY);
   const [sort, setSort] = useState({ key: "mod", dir: -1 });
@@ -24,7 +25,9 @@ export default function App() {
   const load = useCallback(async () => {
     setStatus((s) => ({ ...s, loading: true, error: "" }));
     try {
-      setFiles(await loadFiles());
+      const r = await loadFiles();
+      setFiles(r.files);
+      setDatasets(r.datasets);
       setStatus({ loading: false, error: "", at: new Date() });
     } catch (e) {
       setStatus((s) => ({ ...s, loading: false, error: e.message }));
@@ -57,18 +60,23 @@ export default function App() {
   }, [files, active]);
 
   const checkFiles = useMemo(() => files.filter((f) => match(f, active, CHECK_HIDE)), [files, active]);
+  // ชุดข้อมูลที่ยังไม่มีไฟล์แนบ (ตรงตามคำค้น/หน่วยงาน/กลุ่ม/ความถี่) — ไม่มีปีและรูปแบบไฟล์
+  const emptyDs = useMemo(() => datasets.filter((d) => !d.nFiles && match(d, active, CHECK_HIDE)), [datasets, active]);
 
   const kpi = useMemo(() => {
+    // ถ้ากรองปีหรือรูปแบบไฟล์อยู่ ชุดที่ไม่มีไฟล์ไม่ตรงเงื่อนไขอยู่แล้ว จึงไม่นับ
+    const extra = filters.years.length || filters.fmt.length ? [] : emptyDs;
     const ys = view.flatMap((f) => f.years);
     const last = view.reduce((m, f) => (f.mod > m ? f.mod : m), "");
     return {
-      ds: new Set(view.map((f) => f.dsId)).size,
+      ds: new Set(view.map((f) => f.dsId)).size + extra.length,
+      empty: extra.length,
       files: view.length,
-      orgs: new Set(view.map((f) => f.org)).size,
+      orgs: new Set([...view, ...extra].map((f) => f.org)).size,
       range: ys.length ? `${Math.min(...ys)}–${Math.max(...ys)}` : "–",
       last: thDate(last, { day: "numeric", month: "short", year: "2-digit" }),
     };
-  }, [view]);
+  }, [view, emptyDs, filters.years, filters.fmt]);
 
   const toggleYear = (y) => setF({ years: filters.years.includes(y) ? filters.years.filter((x) => x !== y) : [...filters.years, y] });
   const toggleTheme = () => {
@@ -109,11 +117,11 @@ export default function App() {
       ) : !files.length && status.error ? (
         <div className="card status">ดึงข้อมูลไม่ได้ ({status.error}) — ลองกด “โหลดใหม่”</div>
       ) : tab === "check" ? (
-        <Compliance files={checkFiles} />
+        <Compliance files={checkFiles} emptyDatasets={emptyDs} />
       ) : (
         <>
           <div className="kpis">
-            <Kpi icon="dataset" v={kpi.ds.toLocaleString()} l="ชุดข้อมูล" />
+            <Kpi icon="dataset" v={kpi.ds.toLocaleString()} l={kpi.empty ? `ชุดข้อมูล (ไม่มีไฟล์แนบ ${kpi.empty} ชุด)` : "ชุดข้อมูล"} />
             <Kpi icon="description" v={kpi.files.toLocaleString()} l="ไฟล์ทั้งหมด" />
             <Kpi icon="apartment" v={kpi.orgs.toLocaleString()} l="หน่วยงาน" />
             <Kpi icon="calendar_month" v={kpi.range} l="ช่วงปีของข้อมูล (พ.ศ.)" />

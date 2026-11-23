@@ -10,6 +10,7 @@ const STATUS = [
   ["c1", "ข้อมูลย้อนหลังไม่ครบ"],
   ["c2", "ไม่มีข้อมูลปีปัจจุบัน"],
   ["c3", "ไม่มีไฟล์ Machine readable"],
+  ["nofile", "ไม่มีไฟล์แนบ"],
 ];
 
 const Check = ({ ok, title }) => (
@@ -17,7 +18,8 @@ const Check = ({ ok, title }) => (
 );
 
 // ตรวจสอบชุดข้อมูลตามเงื่อนไข: (1) ย้อนหลังครบ N ปี (2) มีปีปัจจุบัน (3) Machine readable (4) สรุปรายหน่วยงาน (5) ส่งออกผลตรวจ
-export default function Compliance({ files }) {
+// emptyDatasets = ชุดข้อมูลที่ยังไม่มีไฟล์แนบ (นับเป็นไม่ผ่านทุกข้อ)
+export default function Compliance({ files, emptyDatasets = [] }) {
   const [cur, setCur] = useState(CUR_Y);
   const [n, setN] = useState(5);
   const [mrOnly, setMrOnly] = useState(false);
@@ -31,6 +33,7 @@ export default function Compliance({ files }) {
 
   const datasets = useMemo(() => {
     const m = new Map();
+    for (const e of emptyDatasets) m.set(e.dsId, { id: e.dsId, title: e.ds, url: e.dsUrl, org: e.org, files: [] });
     for (const f of files) {
       let d = m.get(f.dsId);
       if (!d) { d = { id: f.dsId, title: f.ds, url: f.dsUrl, org: f.org, files: [] }; m.set(f.dsId, d); }
@@ -42,16 +45,17 @@ export default function Compliance({ files }) {
       const missing = required.filter((y) => !ys.has(y));
       const c1 = missing.length === 0, c2 = ys.has(cur), c3 = mrFiles.length > 0;
       const reasons = [];
-      if (!c1) reasons.push(`ขาดปี ${missing.join(", ")}`);
-      if (!c2) reasons.push(`ไม่มีปี ${cur}`);
-      if (!c3) reasons.push("ไม่มีไฟล์ Machine readable");
+      if (!d.files.length) reasons.push("ไม่มีไฟล์แนบ");
+      else if (!c1) reasons.push(`ขาดปี ${missing.join(", ")}`);
+      if (d.files.length && !c2) reasons.push(`ไม่มีปี ${cur}`);
+      if (d.files.length && !c3) reasons.push("ไม่มีไฟล์ Machine readable");
       return {
         ...d, ys, missing, c1, c2, c3, pass: c1 && c2 && c3, reasons,
         fmts: [...new Set(d.files.map((f) => f.fmt))],
         latest: ys.size ? Math.max(...ys) : null,
       };
     }).sort((a, b) => a.org.localeCompare(b.org, "th") || a.title.localeCompare(b.title, "th"));
-  }, [files, required, cur, mrOnly]);
+  }, [files, emptyDatasets, required, cur, mrOnly]);
 
   const orgRows = useMemo(() => {
     const m = new Map();
@@ -82,7 +86,7 @@ export default function Compliance({ files }) {
     return datasets.filter((d) =>
       (!org || d.org === org) &&
       (!needle || d.title.toLowerCase().includes(needle)) &&
-      (!status || (status === "pass" ? d.pass : status === "fail" ? !d.pass : !d[status]))
+      (!status || (status === "pass" ? d.pass : status === "fail" ? !d.pass : status === "nofile" ? !d.files.length : !d[status]))
     );
   }, [datasets, org, status, q]);
   useEffect(() => setShown(PAGE), [list]);
@@ -205,7 +209,7 @@ export default function Compliance({ files }) {
                 <tr key={d.id}>
                   <td className="c-name">
                     <a href={d.url} target="_blank" rel="noopener">{d.title}</a>
-                    <div className="sub">{d.org} · {d.files.length} ไฟล์{d.latest ? ` · ปีล่าสุด ${d.latest}` : ""}</div>
+                    <div className="sub">{d.org} · {d.files.length ? `${d.files.length} ไฟล์` : <b className="badt">ไม่มีไฟล์แนบ</b>}{d.latest ? ` · ปีล่าสุด ${d.latest}` : ""}</div>
                   </td>
                   <td className="c-ys" data-label={`ปี ${span}`}>
                     <div className="ystrip">

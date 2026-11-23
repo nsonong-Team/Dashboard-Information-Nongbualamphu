@@ -57,6 +57,18 @@ export async function loadFiles() {
     if (!r.results.length) break;
   }
   const files = [];
+  // รายชุดข้อมูลทั้งหมด (รวมชุดที่ยังไม่มีไฟล์แนบ) — ใช้นับจำนวนชุดและใช้ในแท็บตรวจสอบ
+  const datasets = all.map((p) => ({
+    dsId: p.id,
+    ds: p.title,
+    dsUrl: `${BASE}/dataset/${p.name}`,
+    org: p.organization ? p.organization.title : "ไม่ระบุ",
+    groups: (p.groups || []).map((g) => g.title),
+    freq: p.update_frequency_unit || "ไม่ระบุ",
+    nFiles: (p.resources || []).length,
+    years: [], fmt: "",
+    text: [p.title, p.notes, (p.tags || []).map((t) => t.name).join(" ")].join(" ").toLowerCase(),
+  }));
   for (const p of all) for (const r of p.resources || []) {
     const years = yearsOf(r, p);
     files.push({
@@ -78,7 +90,7 @@ export async function loadFiles() {
       text: [r.name, r.description, p.title, p.notes, (p.tags || []).map((t) => t.name).join(" ")].join(" ").toLowerCase(),
     });
   }
-  return files;
+  return { files, datasets };
 }
 
 export const yearLabel = (ys) => (!ys.length ? "–" : ys.length === 1 ? String(ys[0]) : `${ys[0]}–${ys[ys.length - 1]}`);
