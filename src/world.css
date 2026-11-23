@@ -198,8 +198,9 @@ input, select { background: var(--bg-2); border-color: var(--line-hi); color: va
 .cond-row select, .cond-row input[type="number"] { width: 110px; }
 .cond-row.chk-row { justify-content: flex-start; }
 .cond-row.chk-row input { width: auto; accent-color: var(--amber); }
-.ov-key { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; font-size: 13px; color: var(--muted); margin: 0 0 16px; }
-.ov-key .k { width: 12px; height: 12px; border-radius: 50%; border: 3px solid; display: inline-block; margin-right: -8px; }
+.ov-key { list-style: none; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 18px; font-size: 13px; color: var(--muted); margin: 0 0 16px; }
+.ov-key li { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.ov-key .k { flex: none; width: 12px; height: 12px; border-radius: 50%; border: 3px solid; display: inline-block; }
 .ov-key .k.amber { border-color: var(--amber); }
 .ov-key .k.blue { border-color: var(--blue); }
 .ov-key .k.red { border-color: var(--red); border-radius: 3px; }
@@ -334,7 +335,7 @@ input, select { background: var(--bg-2); border-color: var(--line-hi); color: va
 
 /* ส่วนท้าย */
 .foot { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
-.foot img { height: 34px; width: auto; background: #f4f7fd; border-radius: 8px; padding: 4px 8px; }
+.foot img { height: 56px; width: 56px; flex: none; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .5)); }
 .foot p { margin: 0; flex: 1; min-width: 240px; }
 
 /* ---------- จอเล็ก ---------- */
@@ -382,6 +383,63 @@ input, select { background: var(--bg-2); border-color: var(--line-hi); color: va
   .drawer-head, .drawer-tools { padding-left: 14px; padding-right: 14px; }
   .drawer-list { padding: 0 14px 30px; }
   .pop.cond-pop { width: auto; }
+
+  /* ===== มือถือ: UX แยก — ไม่ให้ปุ่มแย่งที่กันในแถวเดียว, เป้าแตะ ≥ 44px ===== */
+  .btn, .btn-ghost, .btn-amber, .trigger, select, input[type="number"] { min-height: 44px; }
+  .icon-btn { min-width: 44px; min-height: 44px; justify-content: center; align-items: center; }
+  .seg button { min-height: 40px; white-space: nowrap; }
+
+  /* แถบควบคุมการ์ด: แถว 1 สลับมุมมองเต็มความกว้าง, แถว 2 เรียง + เงื่อนไข */
+  .ov-bar { margin-top: 20px; }
+  .ov-controls { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+  .ov-controls .seg { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; }
+  .ov-controls .seg button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-size: 15px; }
+  .sort-sel { min-width: 0; }
+  .sort-sel > .msi { display: none; }
+  .sort-sel select { min-width: 0; }
+  .cond .btn { padding: 0 12px; white-space: nowrap; }
+  .cond .cond-l { display: none; }
+  .ov-key { display: grid; gap: 4px; font-size: 13px; }
+
+  /* ส่วนหัว */
+  .hero-toggle { display: none; }
+  .hero-alert .btn-ghost { min-height: 44px; }
+  .rl-reload { min-width: 40px; min-height: 40px; }
+
+  /* การ์ด: ชื่อการ์ดกดง่ายขึ้น */
+  .ecard h3 button { padding: 4px 0; }
+  .ecard-more { min-height: 48px; }
+
+  /* แผงรายละเอียด: ปุ่มปิด 44px, ตัวกรองเลื่อนแนวนอนได้แทนการบีบ, ลิงก์ชุดข้อมูลแตะง่าย */
+  .drawer-x { margin-top: -6px; margin-right: -8px; }
+  .drawer-in, .drawer-head, .drawer-head > div { min-width: 0; }
+  .drawer-tools { flex-direction: column; align-items: stretch; min-width: 0; }
+  .drawer-tools .seg { display: flex; overflow-x: auto; scrollbar-width: none; min-width: 0; max-width: 100%; }
+  .drawer-tools .seg::-webkit-scrollbar { display: none; }
+  .drawer-tools .seg button { flex: 1 0 auto; padding: 0 12px; }
+  .dl-top a { display: block; padding: 4px 0; }
+
+  /* หน้าไฟล์/ตรวจสอบ */
+  .hlist button { min-height: 36px; margin: 2px 0; }
+  .tablebar .row .seg.inline-seg button { min-height: 40px; }
+  .yb { min-width: 34px; height: 28px; }
+
+  /* ตัวเลือกช่วงปี: ซ้อนแนวตั้ง ข้อความในตัวเลือกไม่ถูกตัด */
+  .range-row { flex-direction: column; align-items: stretch; gap: 8px; }
+  .range-row > .msi { display: none; }
+  .pop-actions { gap: 6px; }
+  .pop-actions button { min-height: 40px; flex: 1 1 auto; }
+  .pop-actions button.primary { min-height: 48px; }
+
+  /* ส่วนท้าย */
+  .foot { flex-direction: column; text-align: center; }
+  .foot p { min-width: 0; }
+}
+
+/* จอแคบมาก (≤ 360px): ย่อป้ายเรียงให้เหลือแค่ไอคอน + ค่า */
+@media (max-width: 360px) {
+  .ov-controls .seg button { font-size: 14px; }
+  .ecard-nums div { padding: 4px 7px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

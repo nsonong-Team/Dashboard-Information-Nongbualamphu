@@ -2,11 +2,12 @@ import { forwardRef, useMemo, useRef, useState } from "react";
 import EntityCard from "./EntityCard.jsx";
 import Icon from "./Icon.jsx";
 import { usePopover } from "../hooks.js";
+import { SheetBackdrop, SheetHead } from "./Sheet.jsx";
 import { ISSUES, OTHER, summarize } from "../stats.js";
 
 const SORTS = {
   order: "ลำดับประเด็น",
-  need: "ต้องติดตามก่อน (% ปีปัจจุบันน้อยสุด)",
+  need: "ต้องติดตามก่อน",
   ready: "พร้อมมากสุดก่อน",
   size: "จำนวนชุดข้อมูลมากสุด",
   name: "ชื่อ ก → ฮ",
@@ -21,10 +22,13 @@ function CondSettings({ cfg, setCfg }) {
   return (
     <div className="ms-wrap cond" ref={ref}>
       <button type="button" className="btn" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-        <Icon name="tune" /> เงื่อนไข: {cfg.n} ปี · ปี {cfg.cur}
+        <Icon name="tune" /> <span className="cond-l">เงื่อนไข: </span>{cfg.n} ปี · {cfg.cur}
       </button>
       {open && (
+        <>
+        <SheetBackdrop onClose={() => setOpen(false)} />
         <div className="pop right cond-pop">
+          <SheetHead title="เงื่อนไขการตรวจ" onClose={() => setOpen(false)} />
           <label className="cond-row">ข้อมูลย้อนหลังครบ
             <select value={cfg.n} onChange={(e) => setCfg((c) => ({ ...c, n: +e.target.value }))}>
               {[3, 4, 5, 6, 10].map((x) => <option key={x} value={x}>{x} ปี</option>)}
@@ -39,6 +43,7 @@ function CondSettings({ cfg, setCfg }) {
           </label>
           <p className="pop-foot">ผ่านเงื่อนไขครบ = ย้อนหลังครบ {cfg.n} ปี + มีปี {cfg.cur} + มีไฟล์ Machine readable</p>
         </div>
+        </>
       )}
     </div>
   );
@@ -84,11 +89,11 @@ const Overview = forwardRef(function Overview({ datasets, cfg, setCfg, view, set
           <CondSettings cfg={cfg} setCfg={setCfg} />
         </div>
       </div>
-      <p className="ov-key">
-        <span className="k amber" /> วงนอก = มีข้อมูลปี {cfg.cur}
-        <span className="k blue" /> วงใน = ผ่านเงื่อนไขครบ
-        <span className="k red" /> ขอบแดง = มีข้อมูลปีปัจจุบันไม่ถึง 25%
-      </p>
+      <ul className="ov-key" aria-label="คำอธิบายสัญลักษณ์">
+        <li><span className="k amber" />วงนอก = มีข้อมูลปี {cfg.cur}</li>
+        <li><span className="k blue" />วงใน = ผ่านเงื่อนไขครบ</li>
+        <li><span className="k red" />ขอบแดง = ปี {cfg.cur} ไม่ถึง 25%</li>
+      </ul>
       <div className="egrid" ref={gridRef}>
         {rows.map((row, i) => (
           <EntityCard key={row.key} row={row} meta={metaOf(row)} cur={cfg.cur} index={i} onOpen={() => onOpen(row, metaOf(row))} />

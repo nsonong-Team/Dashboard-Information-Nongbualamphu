@@ -169,7 +169,7 @@ export default function App() {
           )}
 
           <footer className="foot">
-            <img src="brand/logo-nso-nongbualamphu.png" alt="" aria-hidden="true" />
+            <img src="brand/emblem-nbl-statistics.png" alt="" aria-hidden="true" width="447" height="447" />
             <p>จัดทำโดยสำนักงานสถิติจังหวัดหนองบัวลำภู · ข้อมูลทั้งหมดเป็นของหน่วยงานเจ้าของชุดข้อมูล แสดงผลจาก API สาธารณะของ GD Catalog
               · <a href="img/credits.json" target="_blank" rel="noopener">ที่มาของภาพ</a></p>
           </footer>
