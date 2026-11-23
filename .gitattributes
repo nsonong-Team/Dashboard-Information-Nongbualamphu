@@ -1,0 +1,5 @@
+# ให้ไฟล์ข้อความใช้ LF เหมือนกันทุกเครื่อง (Windows/Mac/Linux)
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary

@@ -1,0 +1,136 @@
+/* ===== ใช้ทุกขนาดจอ ===== */
+.search-row { display: flex; gap: 8px; }
+.search-row .inline-search { flex: 1; min-width: 0; }
+.inline-search input[type="search"]::-webkit-search-cancel-button { display: none; }
+.filter-toggle, .mobile-only, .sheet-bg, .sheet-head { display: none; }
+.fname { word-break: break-word; }
+.two > *, .filters > * { min-width: 0; } /* กันชื่อยาว ๆ ดันการ์ดล้นจอ */
+
+/* ===== แท็บเล็ต / จอเล็ก ===== */
+@media (max-width: 900px) {
+  .kpis { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+}
+
+/* ===== มือถือ ===== */
+@media (max-width: 640px) {
+  body { font-size: 14px; }
+  .wrap { padding: 12px 12px 32px; }
+  .mobile-only { display: inline-block; }
+  .m-sort.mobile-only { display: flex; }
+
+  /* header */
+  header { gap: 10px; margin-bottom: 10px; align-items: stretch; flex-direction: column; }
+  h1 { font-size: 18px; }
+  h1 .msi { font-size: 22px; }
+  header .row { display: grid; grid-template-columns: 1fr auto auto; }
+  header .row .btn { padding: 8px 10px; }
+
+  /* tabs เต็มความกว้าง */
+  .tabs button { flex: 1; padding: 10px 6px; font-size: 14px; }
+
+  /* card */
+  .card { padding: 12px; border-radius: 10px; margin-bottom: 12px; }
+  .card h2 { font-size: 15px; }
+  .card h2 .sub { display: block; font-weight: 400; margin-top: 2px; }
+
+  /* KPI: 2 คอลัมน์ ตัวเลขเล็กลง */
+  .kpis { grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+  .kpi { padding: 10px 12px; }
+  .kpi b { font-size: 20px; }
+  .kpi span { font-size: 12px; }
+  .kpi .kicon { top: 10px; right: 10px; font-size: 18px; }
+
+  /* ตัวกรอง: แสดงแค่ช่องค้นหา + ปุ่ม “ตัวกรอง” จนกว่าจะกดเปิด */
+  .filters, .filters.narrow { grid-template-columns: 1fr; gap: 8px; }
+  .filters.collapsed > :not(:first-child) { display: none; }
+  .filters > :first-child > .lab { display: none; }
+  .filter-toggle { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .filter-toggle.active { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .chips { margin-top: 8px; }
+
+  /* popover → bottom sheet */
+  .sheet-bg { display: block; position: fixed; inset: 0; background: rgba(0, 0, 0, .45); z-index: 40; }
+  .pop, .pop.wide, .pop.right {
+    position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 41;
+    width: 100%; max-width: none; max-height: 85vh; display: flex; flex-direction: column;
+    border-radius: 16px 16px 0 0; border: none; border-top: 1px solid var(--line);
+    padding: 6px 14px calc(14px + env(safe-area-inset-bottom));
+    animation: sheet-up .18s ease-out;
+  }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; position: relative; padding: 14px 0 8px; }
+  .sheet-head b { font-size: 16px; }
+  .sheet-head .icon-btn .msi { font-size: 24px; }
+  .sheet-grip { position: absolute; top: 2px; left: 50%; transform: translateX(-50%); width: 40px; height: 4px; border-radius: 2px; background: var(--line); }
+  .pop-list { max-height: none; flex: 1; min-height: 120px; overflow-y: auto; }
+  .opt { padding: 10px 6px; font-size: 15px; }
+  .opt input { width: 18px; height: 18px; }
+  .opt .obar { flex-basis: 48px; }
+  .pop-actions button { padding: 6px 10px; font-size: 13px; }
+  .pop-search input, .range-row select { font-size: 16px; } /* 16px กัน iOS ซูมเข้าเองตอนแตะช่อง */
+  .seg button { padding: 8px; }
+
+  /* กราฟปี */
+  .chart { height: 150px; }
+  .col { flex-basis: 30px; }
+
+  /* BarList */
+  .hlist .n { flex-basis: 52%; }
+  .hlist button { margin: 8px 0; }
+
+  /* ===== ตาราง → การ์ด ===== */
+  .tablebar { flex-direction: column; align-items: stretch; }
+  .tablebar .btn { justify-content: center; }
+  .tablebar .row { display: grid; grid-template-columns: 1fr 1fr; }
+  .tablebar .row .inline-search { grid-column: 1 / -1; }
+  .tablebar .row .chip { grid-column: 1 / -1; justify-self: start; }
+  .tablebar .row select.inline { width: 100%; }
+  .m-sort { align-items: center; gap: 6px; margin-bottom: 8px; color: var(--muted); }
+  .m-sort select { flex: 1; }
+  .tw { overflow: visible; }
+  table.cards thead { display: none; }
+  table.cards, table.cards tbody { display: block; }
+  table.cards tr { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  table.cards td { display: block; border: none; padding: 0; }
+  table.cards td.status { width: 100%; padding: 30px 0; }
+
+  /* รายการไฟล์ */
+  .ftable .c-name, .ftable .c-org, .ftable .c-act { width: 100%; }
+  .ftable .c-name .fname { font-weight: 600; }
+  .ftable .c-org { font-size: 12px; }
+  .ftable .msi.mobile-only { font-size: 14px; vertical-align: -2px; color: var(--muted); }
+  .ftable .c-act { display: flex; gap: 6px; margin-top: 6px; }
+  .ftable .c-act a, .ftable .c-act button {
+    flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    margin: 0; padding: 8px 4px; border: 1px solid var(--line); border-radius: 8px;
+    text-decoration: none; font-size: 13px; color: var(--accent); background: var(--bg);
+  }
+
+  /* สรุปรายหน่วยงาน */
+  table.orgt.cards tr { gap: 6px 0; }
+  .orgt td.c-org-name { width: 100%; font-weight: 600; margin-bottom: 2px; }
+  .orgt td[data-label]:not(.pctcell) { width: 25%; text-align: left; font-size: 13px; }
+  .orgt td[data-label]::before { content: attr(data-label); display: block; font-size: 11px; color: var(--muted); font-weight: 400; }
+  .orgt td.pctcell { display: flex; width: 100%; min-width: 0; margin-top: 4px; }
+  .orgt td.pctcell::before { display: none; }
+
+  /* รายชุดข้อมูล */
+  .dtable td.c-name, .dtable td.c-ys, .dtable td.c-res { width: 100%; }
+  .dtable td.c-ys::before { content: attr(data-label); display: block; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  .dtable .ystrip { flex-wrap: wrap; }
+  .dtable .yb { min-width: 34px; height: 26px; font-size: 12px; }
+  .dtable td.c { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--muted); }
+  .dtable td.c::before { content: attr(data-label); }
+  .dtable td.c-fmt { margin-left: auto; }
+  .legend { gap: 10px; font-size: 12px; }
+
+  /* หน้าต่างดูตัวอย่าง: เต็มจอ */
+  dialog { width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; margin: 0; border-radius: 0; border: none; }
+  dialog .dh { position: sticky; top: 0; background: var(--card); }
+  dialog .dh .row { width: 100%; }
+  dialog .dh input { flex: 1; width: auto !important; font-size: 16px; }
+  dialog .db { max-height: none; height: calc(100dvh - 120px); }
+
+  footer { font-size: 12px; }
+}
+
+@keyframes sheet-up { from { transform: translateY(30%); opacity: .4; } to { transform: none; opacity: 1; } }

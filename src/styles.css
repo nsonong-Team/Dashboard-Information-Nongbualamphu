@@ -1,0 +1,84 @@
+:root {
+  --bg: #f5f6f8; --card: #fff; --ink: #1b1f24; --muted: #626b76; --line: #e2e5ea;
+  --accent: #1f6feb; --accent-soft: #e7f0fd; --bar: #4a86e8; --bar-hi: #1f4fb8;
+  --ok: #1a7f37; --ok-soft: #dcf3e3; --bad: #c9372c; --bad-soft: #fde4e1; --mid: #bf8700;
+  --pdf: #c9372c; --csv: #1a7f37; --xls: #2f7d4f; --json: #8250df; --html: #bc4c00; --other: #57606a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1216; --card: #171b21; --ink: #e6e9ed; --muted: #97a0ab; --line: #2a3039;
+    --accent: #4c8dff; --accent-soft: #1a2740; --bar: #4c8dff; --bar-hi: #9fc0ff;
+    --ok: #3fb950; --ok-soft: #12301c; --bad: #f85149; --bad-soft: #3a1714; --mid: #d29922;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1216; --card: #171b21; --ink: #e6e9ed; --muted: #97a0ab; --line: #2a3039;
+  --accent: #4c8dff; --accent-soft: #1a2740; --bar: #4c8dff; --bar-hi: #9fc0ff;
+  --ok: #3fb950; --ok-soft: #12301c; --bad: #f85149; --bad-soft: #3a1714; --mid: #d29922;
+}
+/* ให้ scrollbar / dropdown ของเบราว์เซอร์เปลี่ยนสีตามธีม (แก้ scrollbar สีขาวในโหมดมืด) */
+:root { color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 "IBM Plex Sans Thai", system-ui, sans-serif; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 20px 16px 40px; }
+header { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-between; margin-bottom: 18px; }
+h1 { font-size: 22px; margin: 0; }
+.sub { color: var(--muted); font-size: 13px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.nowrap { white-space: nowrap; }
+.btn { border: 1px solid var(--line); background: var(--card); color: var(--ink); padding: 7px 12px; border-radius: 8px; cursor: pointer; font-size: 14px; width: auto; }
+.btn:hover:not(:disabled) { border-color: var(--accent); }
+.btn:disabled { opacity: .55; cursor: default; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.kpi { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.kpi b { display: block; font-size: 26px; font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--muted); font-size: 13px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.card h2 { font-size: 16px; margin: 0 0 10px; }
+.filters { display: grid; grid-template-columns: 2fr repeat(5, 1fr); gap: 10px; }
+.filters.narrow { grid-template-columns: 2fr repeat(3, 1fr); }
+@media (max-width: 900px) { .filters, .filters.narrow { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .filters, .filters.narrow { grid-template-columns: 1fr; } }
+label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+input, select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; font-size: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip { background: var(--accent-soft); color: var(--accent); border: none; border-radius: 999px; padding: 2px 10px; font-size: 13px; cursor: pointer; }
+.chart { display: flex; align-items: flex-end; gap: 4px; height: 170px; overflow-x: auto; padding-top: 18px; }
+.col { flex: 1 0 34px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; cursor: pointer; background: none; border: none; padding: 0; }
+.col .v { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.col .b { width: 70%; background: var(--bar); border-radius: 4px 4px 0 0; min-height: 2px; }
+.col:hover .b, .col.on .b { background: var(--bar-hi); }
+.col .y { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.col.on .y { color: var(--ink); font-weight: 600; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 900px) { .two { grid-template-columns: 1fr; } }
+.hlist button { display: flex; width: 100%; align-items: center; gap: 8px; font-size: 13px; margin: 5px 0; cursor: pointer; background: none; border: none; padding: 0; text-align: left; }
+.hlist .n { flex: 0 0 46%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hlist .t { flex: 1; background: var(--line); border-radius: 4px; height: 10px; }
+.hlist .t i { display: block; height: 100%; background: var(--bar); border-radius: 4px; }
+.hlist .c { flex: 0 0 36px; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.tablebar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.tw { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; color: var(--muted); font-weight: 600; cursor: pointer; white-space: nowrap; }
+td.ds { color: var(--muted); font-size: 12px; }
+.fmt { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; color: #fff; background: var(--other); }
+.fmt.PDF { background: var(--pdf); } .fmt.CSV { background: var(--csv); }
+.fmt.XLSX, .fmt.XLS { background: var(--xls); } .fmt.JSON { background: var(--json); } .fmt.HTML { background: var(--html); }
+.acts { white-space: nowrap; }
+.acts a, .acts button { font-size: 12px; margin-right: 6px; }
+.acts button { background: none; border: none; color: var(--accent); cursor: pointer; padding: 0; text-decoration: underline; }
+.status { padding: 40px; text-align: center; color: var(--muted); }
+.more { text-align: center; margin-top: 12px; }
+footer { text-align: center; margin-top: 24px; }
+dialog { border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink); width: min(1100px, 96vw); max-height: 88vh; padding: 0; }
+dialog::backdrop { background: rgba(0, 0, 0, .45); }
+.dh { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.db { padding: 12px 16px; overflow: auto; max-height: 70vh; }
+.db table { font-size: 13px; }
+.db td, .db th { white-space: nowrap; }
