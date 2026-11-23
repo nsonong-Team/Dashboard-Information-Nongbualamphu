@@ -42,6 +42,7 @@
 
   /* ตัวกรอง: แสดงแค่ช่องค้นหา + ปุ่ม “ตัวกรอง” จนกว่าจะกดเปิด */
   .filters, .filters.narrow { grid-template-columns: 1fr; gap: 8px; }
+  .filters > :first-child { grid-column: auto; }
   .filters.collapsed > :not(:first-child) { display: none; }
   .filters > :first-child > .lab { display: none; }
   .filter-toggle { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
@@ -108,7 +109,11 @@
   /* สรุปรายหน่วยงาน */
   table.orgt.cards tr { gap: 6px 0; }
   .orgt td.c-org-name { width: 100%; font-weight: 600; margin-bottom: 2px; }
-  .orgt td[data-label]:not(.pctcell) { width: 25%; text-align: left; font-size: 13px; }
+  .orgt td[data-label]:not(.pctcell) { width: 33.33%; text-align: left; font-size: 13px; }
+  .tablebar .row .seg.inline-seg { grid-column: 1 / -1; display: flex; }
+  .tablebar .row .seg.inline-seg button { flex: 1; }
+  .dtable td.c-acc { width: 100%; }
+  .dtable td.c-acc .sub { display: inline; margin-left: 6px; }
   .orgt td[data-label]::before { content: attr(data-label); display: block; font-size: 11px; color: var(--muted); font-weight: 400; }
   .orgt td.pctcell { display: flex; width: 100%; min-width: 0; margin-top: 4px; }
   .orgt td.pctcell::before { display: none; }

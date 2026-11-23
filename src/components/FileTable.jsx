@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { yearLabel, thDate } from "../api.js";
 import Icon from "./Icon.jsx";
+import AccessBadge from "./AccessBadge.jsx";
 
 const PAGE = 60;
 const COLS = [
@@ -57,7 +58,7 @@ export default function FileTable({ view, sort, setSort, onPreview }) {
                 </td>
                 <td className="ds c-org"><Icon name="apartment" className="mobile-only" /> {f.org}</td>
                 <td className="nowrap c-year"><Icon name="calendar_month" className="mobile-only" /> {yearLabel(f.years)}</td>
-                <td className="c-fmt"><span className={"fmt " + f.fmt}>{f.fmt}</span></td>
+                <td className="c-fmt"><span className={"fmt " + f.fmt}>{f.fmt}</span><AccessBadge type={f.access} /></td>
                 <td className="ds nowrap c-date"><Icon name="update" className="mobile-only" /> {thDate(f.mod)}</td>
                 <td className="acts c-act">
                   <a href={f.url} target="_blank" rel="noopener"><Icon name="download" /> ดาวน์โหลด</a>

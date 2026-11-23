@@ -8,8 +8,8 @@ import PreviewDialog from "./components/PreviewDialog.jsx";
 import Compliance from "./components/Compliance.jsx";
 import Icon from "./components/Icon.jsx";
 
-const EMPTY = { q: "", years: [], org: [], group: [], fmt: [], freq: [] };
-const CHECK_HIDE = ["years", "fmt"]; // แท็บตรวจสอบมีเงื่อนไขปี/รูปแบบของตัวเอง
+const EMPTY = { q: "", years: [], org: [], group: [], fmt: [], freq: [], access: [] };
+const CHECK_HIDE = ["years", "fmt", "access"]; // แท็บตรวจสอบมีเงื่อนไขปี/รูปแบบของตัวเอง
 
 export default function App() {
   const [files, setFiles] = useState([]);
@@ -65,7 +65,7 @@ export default function App() {
 
   const kpi = useMemo(() => {
     // ถ้ากรองปีหรือรูปแบบไฟล์อยู่ ชุดที่ไม่มีไฟล์ไม่ตรงเงื่อนไขอยู่แล้ว จึงไม่นับ
-    const extra = filters.years.length || filters.fmt.length ? [] : emptyDs;
+    const extra = filters.years.length || filters.fmt.length || filters.access.length ? [] : emptyDs;
     const ys = view.flatMap((f) => f.years);
     const last = view.reduce((m, f) => (f.mod > m ? f.mod : m), "");
     return {
@@ -76,7 +76,7 @@ export default function App() {
       range: ys.length ? `${Math.min(...ys)}–${Math.max(...ys)}` : "–",
       last: thDate(last, { day: "numeric", month: "short", year: "2-digit" }),
     };
-  }, [view, emptyDs, filters.years, filters.fmt]);
+  }, [view, emptyDs, filters.years, filters.fmt, filters.access]);
 
   const toggleYear = (y) => setF({ years: filters.years.includes(y) ? filters.years.filter((x) => x !== y) : [...filters.years, y] });
   const toggleTheme = () => {

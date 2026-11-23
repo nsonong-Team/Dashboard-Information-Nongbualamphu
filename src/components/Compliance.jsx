@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { CUR_Y, MR_FORMATS, exportRows } from "../api.js";
 import Icon from "./Icon.jsx";
+import AccessBadge from "./AccessBadge.jsx";
 
 const PAGE = 60;
 const STATUS = [
@@ -11,7 +12,11 @@ const STATUS = [
   ["c2", "ไม่มีข้อมูลปีปัจจุบัน"],
   ["c3", "ไม่มีไฟล์ Machine readable"],
   ["nofile", "ไม่มีไฟล์แนบ"],
+  ["api", "มี API"],
+  ["fileonly", "เป็นไฟล์อย่างเดียว (ไม่มี API)"],
 ];
+const NO_GROUP = "ไม่ระบุประเด็น";
+const BY = { org: ["หน่วยงาน", "apartment"], group: ["ประเด็น (กลุ่ม)", "category"] };
 
 const Check = ({ ok, title }) => (
   <span className={"chk " + (ok ? "ok" : "bad")} title={title}><Icon name={ok ? "check_circle" : "cancel"} fill /></span>
@@ -23,7 +28,8 @@ export default function Compliance({ files, emptyDatasets = [] }) {
   const [cur, setCur] = useState(CUR_Y);
   const [n, setN] = useState(5);
   const [mrOnly, setMrOnly] = useState(false);
-  const [org, setOrg] = useState("");
+  const [by, setBy] = useState("org"); // สรุปตาม หน่วยงาน หรือ ประเด็น
+  const [pick, setPick] = useState(""); // แถวที่คลิกเลือกในตารางสรุป
   const [status, setStatus] = useState("");
   const [q, setQ] = useState("");
   const [shown, setShown] = useState(PAGE);
@@ -33,10 +39,10 @@ export default function Compliance({ files, emptyDatasets = [] }) {
 
   const datasets = useMemo(() => {
     const m = new Map();
-    for (const e of emptyDatasets) m.set(e.dsId, { id: e.dsId, title: e.ds, url: e.dsUrl, org: e.org, files: [] });
+    for (const e of emptyDatasets) m.set(e.dsId, { id: e.dsId, title: e.ds, url: e.dsUrl, org: e.org, groups: e.groups, files: [] });
     for (const f of files) {
       let d = m.get(f.dsId);
-      if (!d) { d = { id: f.dsId, title: f.ds, url: f.dsUrl, org: f.org, files: [] }; m.set(f.dsId, d); }
+      if (!d) { d = { id: f.dsId, title: f.ds, url: f.dsUrl, org: f.org, groups: f.groups, files: [] }; m.set(f.dsId, d); }
       d.files.push(f);
     }
     return [...m.values()].map((d) => {
@@ -53,16 +59,20 @@ export default function Compliance({ files, emptyDatasets = [] }) {
         ...d, ys, missing, c1, c2, c3, pass: c1 && c2 && c3, reasons,
         fmts: [...new Set(d.files.map((f) => f.fmt))],
         latest: ys.size ? Math.max(...ys) : null,
+        access: !d.files.length ? "none" : d.files.some((f) => f.access === "API") ? "API" : "ไฟล์",
+        nApi: d.files.filter((f) => f.access === "API").length,
+        keys: { org: [d.org], group: d.groups.length ? d.groups : [NO_GROUP] },
       };
     }).sort((a, b) => a.org.localeCompare(b.org, "th") || a.title.localeCompare(b.title, "th"));
   }, [files, emptyDatasets, required, cur, mrOnly]);
 
   const orgRows = useMemo(() => {
     const m = new Map();
-    for (const d of datasets) {
-      const r = m.get(d.org) || { org: d.org, n: 0, c1: 0, c2: 0, c3: 0, pass: 0 };
-      r.n++; r.c1 += d.c1; r.c2 += d.c2; r.c3 += d.c3; r.pass += d.pass;
-      m.set(d.org, r);
+    for (const d of datasets) for (const k of d.keys[by]) {
+      const r = m.get(k) || { org: k, n: 0, api: 0, file: 0, c1: 0, c2: 0, c3: 0, pass: 0 };
+      r.n++; r.api += d.access === "API"; r.file += d.access === "ไฟล์";
+      r.c1 += d.c1; r.c2 += d.c2; r.c3 += d.c3; r.pass += d.pass;
+      m.set(k, r);
     }
     const rows = [...m.values()].map((r) => ({ ...r, pct: r.pass / r.n }));
     const { key, dir } = orgSort;
@@ -71,7 +81,7 @@ export default function Compliance({ files, emptyDatasets = [] }) {
       const c = typeof x === "string" ? x.localeCompare(y, "th") : x - y;
       return c * dir || b.n - a.n;
     });
-  }, [datasets, orgSort]);
+  }, [datasets, orgSort, by]);
 
   const total = useMemo(() => ({
     n: datasets.length,
@@ -79,16 +89,18 @@ export default function Compliance({ files, emptyDatasets = [] }) {
     c1: datasets.filter((d) => d.c1).length,
     c2: datasets.filter((d) => d.c2).length,
     c3: datasets.filter((d) => d.c3).length,
+    api: datasets.filter((d) => d.access === "API").length,
+    file: datasets.filter((d) => d.access === "ไฟล์").length,
   }), [datasets]);
 
   const list = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return datasets.filter((d) =>
-      (!org || d.org === org) &&
+      (!pick || d.keys[by].includes(pick)) &&
       (!needle || d.title.toLowerCase().includes(needle)) &&
-      (!status || (status === "pass" ? d.pass : status === "fail" ? !d.pass : status === "nofile" ? !d.files.length : !d[status]))
+      (!status || (status === "pass" ? d.pass : status === "fail" ? !d.pass : status === "nofile" ? !d.files.length : status === "api" ? d.access === "API" : status === "fileonly" ? d.access === "ไฟล์" : !d[status]))
     );
-  }, [datasets, org, status, q]);
+  }, [datasets, pick, by, status, q]);
   useEffect(() => setShown(PAGE), [list]);
 
   const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
@@ -97,12 +109,12 @@ export default function Compliance({ files, emptyDatasets = [] }) {
   const yn = (b) => (b ? "ผ่าน" : "ไม่ผ่าน");
   const span = `${required[0]}–${required[required.length - 1]}`;
 
-  const exportOrgs = () => exportRows(`ผลตรวจรายหน่วยงาน_${span}.csv`,
-    ["หน่วยงาน", "ชุดข้อมูล", `ย้อนหลังครบ ${span}`, `มีปี ${cur}`, "Machine readable", "ผ่านครบ", "% ผ่าน"],
-    orgRows.map((r) => [r.org, r.n, r.c1, r.c2, r.c3, r.pass, pct(r.pass, r.n)]));
+  const exportOrgs = () => exportRows(`ผลตรวจราย${BY[by][0]}_${span}.csv`,
+    [BY[by][0], "ชุดข้อมูล", "มี API", "ไฟล์อย่างเดียว", `ย้อนหลังครบ ${span}`, `มีปี ${cur}`, "Machine readable", "ผ่านครบ", "% ผ่าน"],
+    orgRows.map((r) => [r.org, r.n, r.api, r.file, r.c1, r.c2, r.c3, r.pass, pct(r.pass, r.n)]));
   const exportList = () => exportRows(`ผลตรวจรายชุดข้อมูล_${span}.csv`,
-    ["หน่วยงาน", "ชุดข้อมูล", "ปีที่มีข้อมูล", "ปีที่ขาด", `ย้อนหลังครบ ${span}`, `มีปี ${cur}`, "Machine readable", "รูปแบบไฟล์", "ผลรวม", "เหตุผล", "ลิงก์"],
-    list.map((d) => [d.org, d.title, [...d.ys].sort().join(" "), d.missing.join(" "), yn(d.c1), yn(d.c2), yn(d.c3), d.fmts.join(" "), yn(d.pass), d.reasons.join("; "), d.url]));
+    ["หน่วยงาน", "ประเด็น (กลุ่ม)", "ชุดข้อมูล", "API / ไฟล์", "ปีที่มีข้อมูล", "ปีที่ขาด", `ย้อนหลังครบ ${span}`, `มีปี ${cur}`, "Machine readable", "รูปแบบไฟล์", "ผลรวม", "เหตุผล", "ลิงก์"],
+    list.map((d) => [d.org, d.groups.join(" / "), d.title, d.access === "none" ? "ไม่มีไฟล์" : d.access, [...d.ys].sort().join(" "), d.missing.join(" "), yn(d.c1), yn(d.c2), yn(d.c3), d.fmts.join(" "), yn(d.pass), d.reasons.join("; "), d.url]));
 
   return (
     <>
@@ -134,19 +146,29 @@ export default function Compliance({ files, emptyDatasets = [] }) {
         <Kpi icon="history" v={total.c1} l={`ย้อนหลังครบ ${span} (${pct(total.c1, total.n)}%)`} />
         <Kpi icon="event_available" v={total.c2} l={`มีข้อมูลปี ${cur} (${pct(total.c2, total.n)}%)`} />
         <Kpi icon="table_view" v={total.c3} l={`Machine readable (${pct(total.c3, total.n)}%)`} />
+        <Kpi icon="api" v={total.api} l={`มี API (${pct(total.api, total.n)}%) · ไฟล์อย่างเดียว ${total.file}`} />
       </div>
 
       <div className="card">
         <div className="tablebar">
-          <h2 style={{ margin: 0 }}><Icon name="apartment" /> สรุปรายหน่วยงาน <span className="sub">(คลิกแถวเพื่อดูรายชุดข้อมูลของหน่วยงานนั้น)</span></h2>
-          <button className="btn" onClick={exportOrgs}><Icon name="download" /> ส่งออก CSV</button>
+          <h2 style={{ margin: 0 }}><Icon name={BY[by][1]} /> สรุปตาม{BY[by][0]} <span className="sub">(คลิกแถวเพื่อดูรายชุดข้อมูล{by === "group" ? " · ชุดที่อยู่หลายประเด็นจะนับในทุกประเด็น" : ""})</span></h2>
+          <div className="row">
+            <div className="seg inline-seg">
+              {Object.entries(BY).map(([k, [l, ic]]) => (
+                <button key={k} type="button" className={by === k ? "on" : ""} onClick={() => { setBy(k); setPick(""); }}><Icon name={ic} /> {l}</button>
+              ))}
+            </div>
+            <button className="btn" onClick={exportOrgs}><Icon name="download" /> ส่งออก CSV</button>
+          </div>
         </div>
         <div className="tw">
           <table className="orgt cards">
             <thead>
               <tr>
-                <th onClick={() => sortOrg("org")}>หน่วยงาน{arrow("org")}</th>
+                <th onClick={() => sortOrg("org")}>{BY[by][0]}{arrow("org")}</th>
                 <th className="r" onClick={() => sortOrg("n")}>ชุดข้อมูล{arrow("n")}</th>
+                <th className="r" onClick={() => sortOrg("api")}>มี API{arrow("api")}</th>
+                <th className="r" onClick={() => sortOrg("file")}>ไฟล์อย่างเดียว{arrow("file")}</th>
                 <th className="r" onClick={() => sortOrg("c1")}>ย้อนหลังครบ{arrow("c1")}</th>
                 <th className="r" onClick={() => sortOrg("c2")}>มีปี {cur}{arrow("c2")}</th>
                 <th className="r" onClick={() => sortOrg("c3")}>Machine readable{arrow("c3")}</th>
@@ -155,9 +177,11 @@ export default function Compliance({ files, emptyDatasets = [] }) {
             </thead>
             <tbody>
               {orgRows.map((r) => (
-                <tr key={r.org} className={"click" + (org === r.org ? " sel" : "")} onClick={() => setOrg(org === r.org ? "" : r.org)}>
+                <tr key={r.org} className={"click" + (pick === r.org ? " sel" : "")} onClick={() => setPick(pick === r.org ? "" : r.org)}>
                   <td className="c-org-name">{r.org}</td>
                   <td className="r" data-label="ชุดข้อมูล">{r.n}</td>
+                  <td className="r" data-label="มี API">{r.api}</td>
+                  <td className="r" data-label="ไฟล์อย่างเดียว">{r.file}</td>
                   <td className="r" data-label="ย้อนหลังครบ"><Frac a={r.c1} b={r.n} /></td>
                   <td className="r" data-label={`มีปี ${cur}`}><Frac a={r.c2} b={r.n} /></td>
                   <td className="r" data-label="Machine readable"><Frac a={r.c3} b={r.n} /></td>
@@ -167,7 +191,7 @@ export default function Compliance({ files, emptyDatasets = [] }) {
                   </td>
                 </tr>
               ))}
-              {!orgRows.length && <tr><td colSpan={6} className="status">ไม่มีข้อมูล</td></tr>}
+              {!orgRows.length && <tr><td colSpan={8} className="status">ไม่มีข้อมูล</td></tr>}
             </tbody>
           </table>
         </div>
@@ -177,7 +201,7 @@ export default function Compliance({ files, emptyDatasets = [] }) {
         <div className="tablebar">
           <h2 style={{ margin: 0 }}><Icon name="fact_check" /> รายชุดข้อมูล <span className="sub">({list.length.toLocaleString()} ชุด)</span></h2>
           <div className="row">
-            {org && <button className="chip" onClick={() => setOrg("")}>{org} ✕</button>}
+            {pick && <button className="chip" onClick={() => setPick("")}>{pick} ✕</button>}
             <div className="inline-search"><Icon name="search" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ค้นหาชื่อชุดข้อมูล" /></div>
             <select value={status} onChange={(e) => setStatus(e.target.value)} className="inline">
               {STATUS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -196,6 +220,7 @@ export default function Compliance({ files, emptyDatasets = [] }) {
             <thead>
               <tr>
                 <th>ชุดข้อมูล</th>
+                <th>API / ไฟล์</th>
                 <th>ปี {span}</th>
                 <th className="c">ย้อนหลัง</th>
                 <th className="c">ปี {cur}</th>
@@ -209,8 +234,9 @@ export default function Compliance({ files, emptyDatasets = [] }) {
                 <tr key={d.id}>
                   <td className="c-name">
                     <a href={d.url} target="_blank" rel="noopener">{d.title}</a>
-                    <div className="sub">{d.org} · {d.files.length ? `${d.files.length} ไฟล์` : <b className="badt">ไม่มีไฟล์แนบ</b>}{d.latest ? ` · ปีล่าสุด ${d.latest}` : ""}</div>
+                    <div className="sub">{d.org}{d.groups.length ? ` · ${d.groups.join(", ")}` : ""} · {d.files.length ? `${d.files.length} ไฟล์` : <b className="badt">ไม่มีไฟล์แนบ</b>}{d.latest ? ` · ปีล่าสุด ${d.latest}` : ""}</div>
                   </td>
+                  <td className="c-acc" data-label="API / ไฟล์"><AccessBadge type={d.access} />{d.access === "API" && d.nApi < d.files.length && <div className="sub">API {d.nApi}/{d.files.length} ไฟล์</div>}</td>
                   <td className="c-ys" data-label={`ปี ${span}`}>
                     <div className="ystrip">
                       {required.map((y) => (
@@ -229,7 +255,7 @@ export default function Compliance({ files, emptyDatasets = [] }) {
                   </td>
                 </tr>
               ))}
-              {!list.length && <tr><td colSpan={7} className="status">ไม่พบชุดข้อมูลที่ตรงเงื่อนไข</td></tr>}
+              {!list.length && <tr><td colSpan={8} className="status">ไม่พบชุดข้อมูลที่ตรงเงื่อนไข</td></tr>}
             </tbody>
           </table>
         </div>

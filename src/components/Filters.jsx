@@ -10,7 +10,7 @@ function counts(list, fn) {
   return [...m].sort((a, b) => b[1] - a[1]);
 }
 
-const LABELS = { q: "ค้นหา", years: "ปี", org: "หน่วยงาน", group: "กลุ่ม", fmt: "รูปแบบ", freq: "ความถี่" };
+const LABELS = { q: "ค้นหา", years: "ปี", org: "หน่วยงาน", group: "กลุ่ม", fmt: "รูปแบบ", freq: "ความถี่", access: "การเข้าถึง" };
 
 // ตัวเลขในแต่ละตัวเลือกคำนวณจากตัวกรองอื่น ๆ ที่เลือกอยู่ (เช่น เลือกหน่วยงานแล้ว ตัวเลขปีจะเป็นของหน่วยงานนั้น)
 export default function Filters({ files, filters, active, setF, reset, hide = [] }) {
@@ -28,6 +28,7 @@ export default function Filters({ files, filters, active, setF, reset, hide = []
       group: counts(base("group"), (f) => f.groups),
       fmt: counts(base("fmt"), (f) => f.fmt),
       freq: counts(base("freq"), (f) => f.freq),
+      access: counts(base("access"), (f) => f.access),
     };
   }, [files, active, hide.join()]);
 
@@ -62,6 +63,9 @@ export default function Filters({ files, filters, active, setF, reset, hide = []
         <MultiSelect label="กลุ่ม/ประเด็น" icon="category" allLabel="ทุกกลุ่ม" options={opts.group} value={filters.group} onChange={(group) => setF({ group })} />
         {!hide.includes("fmt") && (
           <MultiSelect label="รูปแบบไฟล์" icon="description" allLabel="ทุกรูปแบบ" options={opts.fmt} value={filters.fmt} onChange={(fmt) => setF({ fmt })} />
+        )}
+        {!hide.includes("access") && (
+          <MultiSelect label="API / ไฟล์" icon="api" allLabel="ทั้ง API และไฟล์" options={opts.access} value={filters.access} onChange={(access) => setF({ access })} />
         )}
         <MultiSelect label="ความถี่การอัปเดต" icon="update" allLabel="ทุกความถี่" options={opts.freq} value={filters.freq} onChange={(freq) => setF({ freq })} />
       </div>

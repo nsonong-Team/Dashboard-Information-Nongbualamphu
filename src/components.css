@@ -77,6 +77,7 @@ h2 .msi { color: var(--accent); }
 select.inline, input.inline { width: auto; padding: 4px 8px; }
 input.num { width: 84px; }
 .orgt tr.click { cursor: pointer; }
+.orgt td.c-org-name { min-width: 200px; }
 .orgt tr.click:hover td { background: var(--accent-soft); }
 .orgt tr.sel td { background: var(--accent-soft); font-weight: 600; }
 th.r, td.r { text-align: right; font-variant-numeric: tabular-nums; }
@@ -105,4 +106,13 @@ th.c, td.c { text-align: center; }
 .badge .msi { font-size: 15px; }
 .reason { color: var(--bad); margin-top: 2px; }
 .fmt { margin: 0 3px 3px 0; }
+
+/* ---------- API / ไฟล์ ---------- */
+.acc { display: inline-flex; align-items: center; gap: 2px; font-size: 11px; font-weight: 700; padding: 1px 7px 1px 4px; border-radius: 999px; white-space: nowrap; vertical-align: 1px; }
+.acc .msi { font-size: 14px; vertical-align: 0; }
+.acc.api { background: var(--accent-soft); color: var(--accent); }
+.acc.file { background: var(--line); color: var(--muted); }
+.acc.none { background: var(--bad-soft); color: var(--bad); }
+.seg.inline-seg { display: inline-flex; margin: 0; }
+.seg.inline-seg button { flex: none; padding: 4px 12px; }
 .fmt.nmr { opacity: .55; }

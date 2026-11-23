@@ -66,7 +66,7 @@ export async function loadFiles() {
     groups: (p.groups || []).map((g) => g.title),
     freq: p.update_frequency_unit || "ไม่ระบุ",
     nFiles: (p.resources || []).length,
-    years: [], fmt: "",
+    years: [], fmt: "", access: "",
     text: [p.title, p.notes, (p.tags || []).map((t) => t.name).join(" ")].join(" ").toLowerCase(),
   }));
   for (const p of all) for (const r of p.resources || []) {
@@ -87,6 +87,8 @@ export async function loadFiles() {
       yMax: years.length ? years[years.length - 1] : 0,
       mod: r.last_modified || r.metadata_modified || r.created || p.metadata_modified || "",
       datastore: !!r.datastore_active,
+      // API = ดึงข้อมูลผ่าน API ได้ (เปิด DataStore หรือหน่วยงานระบุรูปแบบเป็น API), ไฟล์ = ต้องดาวน์โหลดไปเปิดเอง
+      access: r.datastore_active || (r.format || "").toUpperCase() === "API" ? "API" : "ไฟล์",
       text: [r.name, r.description, p.title, p.notes, (p.tags || []).map((t) => t.name).join(" ")].join(" ").toLowerCase(),
     });
   }
@@ -101,7 +103,7 @@ export function match(f, c, skip) {
   const sk = new Set([].concat(skip || []));
   if (!sk.has("q") && c.q && !c.q.split(/s+/).every((w) => f.text.includes(w))) return false;
   if (!sk.has("years") && c.years.length && !f.years.some((y) => c.years.includes(y))) return false;
-  for (const k of ["org", "fmt", "freq"]) if (!sk.has(k) && c[k].length && !c[k].includes(f[k])) return false;
+  for (const k of ["org", "fmt", "freq", "access"]) if (!sk.has(k) && c[k].length && !c[k].includes(f[k])) return false;
   if (!sk.has("group") && c.group.length && !f.groups.some((g) => c.group.includes(g))) return false;
   return true;
 }
